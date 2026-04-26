@@ -1,0 +1,14 @@
+{
+  "name": "tob-sales-assistant-scripts",
+  "version": "1.0.0",
+  "description": "ToB销售助手 - 知识库索引与语义搜索脚本",
+  "main": "search.js",
+  "scripts": {
+    "index": "node index.js",
+    "search": "node search.js"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

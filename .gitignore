@@ -1,0 +1,8 @@
+node_modules/
+data/index.json
+data/clients/
+data/reports/
+data/knowledge/*.pdf
+.env
+*.log
+.DS_Store
