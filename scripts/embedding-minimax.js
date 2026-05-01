@@ -3,7 +3,7 @@
  *
  * 环境变量：
  *   MINIMAX_API_KEY: MiniMax API Key
- *   MINIMAX_GROUP_ID: MiniMax Group ID
+ *   MINIMAX_GROUP_ID: MiniMax Group ID（必须，拼入 URL）
  *
  * 文档：https://www.minimaxi.com/document/guides/embedding
  */
@@ -18,28 +18,23 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/**
- * 获取单个文本的 embedding
- */
-async function getEmbedding(text) {
+function makeRequest(body) {
   if (!API_KEY || !GROUP_ID) {
-    throw new Error('未找到 MINIMAX_API_KEY 或 MINIMAX_GROUP_ID 环境变量');
+    return Promise.reject(new Error('未找到 MINIMAX_API_KEY 或 MINIMAX_GROUP_ID 环境变量'));
   }
 
-  const body = JSON.stringify({
-    model: EMBEDDING_MODEL,
-    texts: [text],
-  });
+  const bodyStr = JSON.stringify(body);
 
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'api.minimax.chat',
-      path: `/v1/embeddings`,
+      // GroupId 必须作为 URL query 参数传入
+      path: `/v1/embeddings?GroupId=${GROUP_ID}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`,
-        'Content-Length': Buffer.byteLength(body),
+        'Content-Length': Buffer.byteLength(bodyStr),
       },
     };
 
@@ -49,13 +44,15 @@ async function getEmbedding(text) {
       res.on('end', () => {
         try {
           const result = JSON.parse(raw);
-          if (result.error) {
-            throw new Error(result.error.message || JSON.stringify(result.error));
+          // MiniMax 用 base_resp 表示状态，status_code 非 0 表示错误
+          if (result.base_resp && result.base_resp.status_code !== 0) {
+            throw new Error(`MiniMax 错误 ${result.base_resp.status_code}: ${result.base_resp.status_msg}`);
           }
-          if (!result.data || !result.data[0]) {
+          // 向量在 vectors 字段，不是 data
+          if (!result.vectors || !Array.isArray(result.vectors)) {
             throw new Error('MiniMax 返回格式异常: ' + raw);
           }
-          resolve(result.data[0].embedding);
+          resolve(result.vectors);
         } catch (e) {
           reject(new Error(`MiniMax Embedding API 错误: ${e.message}`));
         }
@@ -63,69 +60,45 @@ async function getEmbedding(text) {
     });
 
     req.on('error', reject);
-    req.write(body);
+    req.write(bodyStr);
     req.end();
   });
 }
 
 /**
+ * 获取单个文本的 embedding
+ * @param {string} text 输入文本
+ * @param {'db'|'query'} type db=建索引时用，query=搜索时用
+ */
+async function getEmbedding(text, type = 'db') {
+  const vectors = await makeRequest({
+    model: EMBEDDING_MODEL,
+    type,
+    texts: [text],
+  });
+  return vectors[0].embedding;
+}
+
+/**
  * 批量获取 embeddings
  * @param {string[]} texts 文本数组
- * @param {number} delayMs 批次间延迟（毫秒）
+ * @param {'db'|'query'} type db=建索引时用，query=搜索时用
  */
-async function getEmbeddings(texts, delayMs = 100) {
-  if (!API_KEY || !GROUP_ID) {
-    throw new Error('未找到 MINIMAX_API_KEY 或 MINIMAX_GROUP_ID 环境变量');
-  }
-
+async function getEmbeddings(texts, type = 'db') {
   if (!Array.isArray(texts) || texts.length === 0) {
     return [];
   }
 
-  const body = JSON.stringify({
+  const vectors = await makeRequest({
     model: EMBEDDING_MODEL,
-    texts: texts,
+    type,
+    texts,
   });
 
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'api.minimax.chat',
-      path: `/v1/embeddings`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Length': Buffer.byteLength(body),
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      let raw = '';
-      res.on('data', chunk => raw += chunk);
-      res.on('end', () => {
-        try {
-          const result = JSON.parse(raw);
-          if (result.error) {
-            throw new Error(result.error.message || JSON.stringify(result.error));
-          }
-          if (!result.data || !Array.isArray(result.data)) {
-            throw new Error('MiniMax 返回格式异常: ' + raw);
-          }
-          // 按照原始顺序返回
-          const embeddings = result.data
-            .sort((a, b) => a.index - b.index)
-            .map(item => item.embedding);
-          resolve(embeddings);
-        } catch (e) {
-          reject(new Error(`MiniMax Embedding API 错误: ${e.message}`));
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
+  // 按 index 排序，确保顺序与输入一致
+  return vectors
+    .sort((a, b) => a.index - b.index)
+    .map(v => v.embedding);
 }
 
 module.exports = {
