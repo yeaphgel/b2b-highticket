@@ -1,0 +1,60 @@
+{
+  "app_name": "Clover A-sales - Sales Champion Coaching System",
+  "app_version": "1.0.0",
+  "tagline": "Gamified Sales Coaching Platform with AI-Powered Progressive Learning",
+
+  "dashboard": "Dashboard",
+  "leaderboard": "Leaderboard",
+  "coaching": "GROW Coaching",
+  "challenges": "Challenges",
+  "profile": "Profile",
+  "settings": "Settings",
+
+  "level": "Level",
+  "points": "Points",
+  "score": "Score",
+  "rank": "Rank",
+  "badges": "Badges",
+  "calls": "Calls",
+
+  "level_1": "Sales Newcomer",
+  "level_2": "Junior Sales",
+  "level_3": "Mid-Level Sales",
+  "level_4": "Sales Champion",
+  "level_5": "Sales Master",
+
+  "dimension_ice_breaking": "Ice Breaking",
+  "dimension_identify_needs": "Identify Needs",
+  "dimension_deliver_value": "Deliver Value",
+  "dimension_build_trust": "Build Trust",
+  "dimension_trust_shaping": "Trust Shaping",
+  "dimension_custom_solutions": "Custom Solutions",
+  "dimension_objection_handling": "Objection Handling",
+  "dimension_close_deal": "Close Deal",
+  "dimension_relationship_maintenance": "Relationship Maintenance",
+  "dimension_hooks": "Hooks",
+
+  "goal": "Goal Setting",
+  "reality": "Reality Check",
+  "options": "Options",
+  "way_forward": "Way Forward",
+
+  "weekly_rank": "Weekly Ranking",
+  "monthly_rank": "Monthly Ranking",
+  "yearly_rank": "Yearly Ranking",
+
+  "coaching_questions": "This Week's Key Questions",
+  "improvement_areas": "Areas for Improvement",
+  "learning_resources": "Learning Resources",
+  "next_review": "Next Review",
+
+  "loading": "Loading...",
+  "no_data": "No data available",
+  "error": "Error",
+  "success": "Success",
+
+  "contact_email": "yeaphgel@gmail.com",
+  "contact_twitter": "@yeaphgel",
+  "documentation": "Documentation",
+  "github_repo": "GitHub Repository"
+}
