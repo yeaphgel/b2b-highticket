@@ -1,0 +1,60 @@
+{
+  "app_name": "Clover A-sales 销冠教练系统",
+  "app_version": "1.0.0",
+  "tagline": "游戏化销售教练平台，具有 AI 驱动的渐进式学习",
+
+  "dashboard": "仪表盘",
+  "leaderboard": "排行榜",
+  "coaching": "GROW 教练",
+  "challenges": "挑战",
+  "profile": "个人档案",
+  "settings": "设置",
+
+  "level": "等级",
+  "points": "积分",
+  "score": "分数",
+  "rank": "排名",
+  "badges": "徽章",
+  "calls": "通话",
+
+  "level_1": "销售新人",
+  "level_2": "初级销售",
+  "level_3": "中级销售",
+  "level_4": "销冠",
+  "level_5": "销售大师",
+
+  "dimension_ice_breaking": "破冰",
+  "dimension_identify_needs": "识别需求",
+  "dimension_deliver_value": "传达价值",
+  "dimension_build_trust": "建立信任",
+  "dimension_trust_shaping": "信任塑造",
+  "dimension_custom_solutions": "定制解决",
+  "dimension_objection_handling": "异议处理",
+  "dimension_close_deal": "促成交易",
+  "dimension_relationship_maintenance": "关系维护",
+  "dimension_hooks": "钩子",
+
+  "goal": "目标设定",
+  "reality": "现状分析",
+  "options": "选项",
+  "way_forward": "行动计划",
+
+  "weekly_rank": "周排行",
+  "monthly_rank": "月排行",
+  "yearly_rank": "年排行",
+
+  "coaching_questions": "本周重点问题",
+  "improvement_areas": "改进方向",
+  "learning_resources": "学习资源",
+  "next_review": "下次复盘",
+
+  "loading": "加载中...",
+  "no_data": "暂无数据",
+  "error": "错误",
+  "success": "成功",
+
+  "contact_email": "yeaphgel@gmail.com",
+  "contact_twitter": "@yeaphgel",
+  "documentation": "文档",
+  "github_repo": "GitHub 仓库"
+}

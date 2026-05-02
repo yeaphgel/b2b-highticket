@@ -1,0 +1,53 @@
+{
+  "name": "clover-a-sales",
+  "version": "1.0.0",
+  "description": "Clover A-sales - Sales Champion Coaching System with AI-Powered Progressive Learning",
+  "main": "scripts/index.js",
+  "author": "yeaphgel",
+  "license": "MIT",
+  "homepage": "https://github.com/yeaphgel/clover-a-sales",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeaphgel/clover-a-sales.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "npm run dashboard",
+    "start:all": "concurrently \"npm run dashboard\" \"npm run scheduler\" \"npm run hermes\" \"npm run webhook\"",
+    "dashboard": "node scripts/dashboard-api.js",
+    "scheduler": "node scripts/scheduler.js",
+    "hermes": "node scripts/hermes-integration.js --listen",
+    "webhook": "node scripts/webhook-handler.js",
+    "index": "node scripts/index.js",
+    "search": "node scripts/search.js",
+    "clean": "node scripts/clean.js",
+    "coach-cli": "node scripts/coach-cli.js",
+    "memory": "node scripts/memory.js",
+    "briefing": "node scripts/briefing.js",
+    "dev": "concurrently \"npm run dashboard -- --dev\" \"npm run scheduler\" \"npm run hermes\" \"npm run webhook\"",
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "docker:build": "docker build -t clover-a-sales:latest .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v",
+    "install:dev": "npm install",
+    "install:prod": "npm ci --only=production"
+  },
+  "keywords": [
+    "sales",
+    "coaching",
+    "gamification",
+    "ai",
+    "crm",
+    "clover",
+    "training"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  },
+  "optionalDependencies": {}
+}

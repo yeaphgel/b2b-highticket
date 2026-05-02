@@ -1,8 +1,66 @@
+# Dependencies
 node_modules/
-data/index.json
-data/clients/
-data/reports/
-data/knowledge/*.pdf
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Environment
 .env
+.env.local
+.env.*.local
+
+# Data files (but keep directory structure)
+data/index.json
+data/clients/*.json
+data/progress/*.json
+data/progress/rankings/*.json
+data/email-logs/*.json
+
+# Logs
+logs/
 *.log
+
+# Backups
+backups/
+*.backup
+*.bak
+
+# OS
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (in scripts)
+scripts/node_modules/
+
+# Docker
+.docker
+docker-compose.override.yml
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.tmp
+.cache/
+.next/
+dist/
+build/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Misc
+*.pem
+*.key
+.env*
+!.env.example
