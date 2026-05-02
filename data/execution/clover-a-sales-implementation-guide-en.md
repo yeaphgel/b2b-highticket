@@ -1,4 +1,4 @@
-# Clover Sales Methodology Implementation Guide (English Version)
+# Clover A-sales Sales Methodology Implementation Guide (English Version)
 
 **Version**: 1.0 | **For**: OpenClaw + Hermes AI Agent | **Last Updated**: 2026-05-02
 
@@ -6,9 +6,9 @@
 
 ## Quick Start (5 Minutes to Understand Core)
 
-### What is Clover?
+### What is Clover A-sales?
 
-Clover = Time-based rhythm (1-7-3) + 8-Gate closing map (G1-G7) + AI review system
+Clover A-sales = Time-based rhythm (1-7-3) + 8-Gate closing map (G1-G7) + AI review system
 
 **One sentence**: Anchor the customer's #1 urgent problem in Day 1, build trust over 7 days, then execute 3 promotional rounds over 30 days—while using AI analysis of every call to accelerate your personal growth.
 
@@ -410,7 +410,7 @@ For each customer account:
 
 **Sample Hermes Prompt**:
 ```
-You are a sales coach. Analyze this call transcript using Clover framework:
+You are a sales coach. Analyze this call transcript using Clover A-sales framework:
 1. Which gate is this customer at?
 2. Score each gate 0-10
 3. What's the biggest bottleneck?
@@ -553,7 +553,7 @@ Lesson: Real, urgent problems close fast. Your job is to identify and amplify.
 **Week 4**: Review 30-day performance, iterate
 
 ### If you're a team:
-**Week 1**: Teach everyone Clover + 8 gates
+**Week 1**: Teach everyone Clover A-sales + 8 gates
 **Week 2**: Each rep does 2 demo calls (recorded), peer feedback
 **Week 3**: Weekly Friday sync on "what's the best opener we discovered this week?"
 **Week 4+**: Build industry-specific talk-track variations, measure team average gate scores
@@ -562,7 +562,7 @@ Lesson: Real, urgent problems close fast. Your job is to identify and amplify.
 
 ## Key Takeaway
 
-Clover works because it respects the customer's decision-making process:
+Clover A-sales works because it respects the customer's decision-making process:
 - Day 1: "Here's your urgent problem"
 - Days 2-7: "We understand you + we can solve this"
 - Days 8-30: "The window for this solution is limited, decide now"
@@ -572,5 +572,6 @@ When customers see the structure, the urgency, and the expertise—they buy.
 ---
 
 **Update Log**:
-- 2026-05-02: Clover Implementation Guide (English v1.0)
+- 2026-05-02: Clover A-sales Implementation Guide (English v1.0)
 - Complete: Process, OpenClaw integration, Hermes optimization, checklists, FAQ
+- 2026-05-03: Brand upgrade to Clover A-sales, all references updated
