@@ -130,14 +130,18 @@
 3. 顾问式销售（深化）- 你的 PDF 文件
 4. Gap Selling - 发现未意识到的需求
 
-**P2 - 应该补充（20% 的高端场景）**
-5. Strategic Selling - 大订单多角色管理
-6. RAIN Selling - 现代关系销售理论
-7. Insight Selling - 基于洞察的销售
+**P2 - 应该补充（20% 的高端场景）** ✅ 已完成 2026-05-04
+5. ✅ Strategic Selling - 大订单多角色管理 → `data/knowledge/methodologies/strategic-selling-miller-heiman.md`
+6. ✅ RAIN Selling - 现代关系销售理论 → `data/knowledge/methodologies/rain-selling-methodology.md`
+7. ✅ Insight Selling - 基于洞察的销售 → `data/knowledge/methodologies/insight-selling-methodology.md`
 
-**P3 - 锦上添花（特定行业或角色）**
-8. Miller Heiman Diamond - 个性化销售
-9. Sandler的深度话术库 - 常见异议处理
+**P3 - 锦上添花（特定行业或角色）** ✅ 已完成 2026-05-04
+8. ✅ Virtual Selling - 远程/视频销售 → `data/knowledge/methodologies/virtual-selling-remote-sales.md`
+9. ✅ SaaS 销售方法 → `data/knowledge/methodologies/saas-sales-methodology.md`
+10. ✅ 销售领导力 → `data/knowledge/methodologies/sales-leadership-management.md`
+11. ✅ 客户成功与账户管理 → `data/knowledge/methodologies/customer-success-account-management.md`
+12. ✅ AI 解决方案销售 → `data/knowledge/methodologies/ai-solutions-sales-methodology.md`
+13. ✅ 数据驱动销售 → `data/knowledge/methodologies/data-driven-sales.md`
 
 ---
 
@@ -150,35 +154,21 @@
   - Daniel Kahneman - Thinking Fast and Slow
   - Chris Voss - Never Split the Difference（谈判心理）
 
-### 2. 虚拟销售（现在必需）
-- **缺失**：Zoom/视频销售技巧、远程建立信任
-- **推荐来源**：
-  - Kendra Lee - Virtual Selling
-  - Jill Konrath - Remote Sales Playbook
+### 2. 虚拟销售（现在必需） ✅ 已完成 2026-05-04
+→ `data/knowledge/methodologies/virtual-selling-remote-sales.md`
 
-### 3. 行业特定销售方法
-- **缺失**：SaaS、知识服务、制造业、AI/智能体特定方法
-- **推荐来源**：
-  - SaaS: Winning by Design, The SaaS Sales Method
-  - 企业软件: Selling to the C-Suite
+### 3. 行业特定销售方法 ✅ 已完成 2026-05-04
+- ✅ SaaS 销售方法 → `data/knowledge/methodologies/saas-sales-methodology.md`
+- ✅ AI/智能体特定方法 → `data/knowledge/methodologies/ai-solutions-sales-methodology.md`
 
-### 4. 销售领导力和团队管理
-- **缺失**：如何管理销售团队、复制成功个体
-- **推荐来源**：
-  - Mark Roberge - The Sales Acceleration Formula
-  - Jason Jordan - Cracking the Sales Management Code
+### 4. 销售领导力和团队管理 ✅ 已完成 2026-05-04
+→ `data/knowledge/methodologies/sales-leadership-management.md`
 
-### 5. 客户成功和账户管理
-- **缺失**：签单后的价值实现、续约和扩展
-- **推荐来源**：
-  - Gainsight - Customer Success Management
-  - Lincoln Murphy - Account-Based Marketing
+### 5. 客户成功和账户管理 ✅ 已完成 2026-05-04
+→ `data/knowledge/methodologies/customer-success-account-management.md`
 
-### 6. 数据驱动销售
-- **缺失**：销售分析、预测、ROI 计算
-- **推荐来源**：
-  - HubSpot Sales Blog
-  - Gong.io - AI-Driven Sales Insights
+### 6. 数据驱动销售 ✅ 已完成 2026-05-04
+→ `data/knowledge/methodologies/data-driven-sales.md`
 
 ---
 
@@ -226,8 +216,10 @@
 - [ ] RAIN Selling 理论
 - [ ] 销售心理学（Cialdini 原理）
 
-### 第三阶段（本季）
-- [ ] Strategic Selling（大订单）
+### 第三阶段（本季）✅ 已完成 2026-05-04
+- [x] Strategic Selling（大订单）
+- [x] RAIN Selling 理论
+- [x] Insight Selling 基于洞察
 - [ ] 虚拟销售方法
 - [ ] 行业特定方法（SaaS/知识服务）
 
