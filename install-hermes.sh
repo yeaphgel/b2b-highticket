@@ -197,15 +197,17 @@ setup_env() {
     fi
   fi
 
-  # Hermes 专用密钥（Webhook 签名验证，可选）
+  # HERMES_SECRET / HERMES_API_KEY 仅在服务模式（Webhook）下需要
+  # Skill 模式下 Hermes 直接调用脚本，无 Webhook 请求，无需配置
+  # 如果环境变量中已设置（服务模式场景），自动写入；否则跳过
   if [ -n "${HERMES_SECRET:-}" ]; then
     _write_env HERMES_SECRET "$HERMES_SECRET"
-    log_success "HERMES_SECRET 已自动写入 .env"
+    log_success "HERMES_SECRET 已自动写入 .env（服务模式）"
   fi
 
   if [ -n "${HERMES_API_KEY:-}" ]; then
     _write_env HERMES_API_KEY "$HERMES_API_KEY"
-    log_success "HERMES_API_KEY 已自动写入 .env"
+    log_success "HERMES_API_KEY 已自动写入 .env（服务模式）"
   fi
 }
 
@@ -267,8 +269,12 @@ show_done() {
   echo '  "A 客户现在进展到哪了？"  → 调取客户档案'
   echo ""
 
-  echo -e "${BLUE}若需修改配置${NC}:"
-  echo "  vim ${skill_dir}/.env"
+  echo -e "${BLUE}配置说明${NC}:"
+  echo "  Skill 模式无需额外 API key 即可使用基础功能"
+  echo "  如需知识库语义搜索，可配置 ARK_API_KEY："
+  echo "    vim ${skill_dir}/.env"
+  echo "    → 填写 ARK_API_KEY=你的密钥（可从火山引擎获取）"
+  echo "    → 然后运行: cd ${skill_dir}/scripts && node index.js"
   echo ""
 
   echo -e "${BLUE}文档${NC}: https://github.com/yeaphgel/b2b-highticket"
