@@ -155,7 +155,7 @@ function generateRankings() {
 
 const routes = {
   // GET /api/dashboard/:userId
-  '/api/dashboard': (req, params) => {
+  '/api/dashboard/:userId': (req, params) => {
     const userId = params[0];
     const progress = getUserProgress(userId);
     const avgScore = calculateAverageScore(progress.dimensionScores);
@@ -206,7 +206,7 @@ const routes = {
   },
 
   // GET /api/dimension/:userId
-  '/api/dimension': (req, params) => {
+  '/api/dimension/:userId': (req, params) => {
     const userId = params[0];
     const progress = getUserProgress(userId);
     return {
@@ -221,7 +221,7 @@ const routes = {
   },
 
   // POST /api/progress/:userId/update
-  '/api/progress': (req, params, body) => {
+  '/api/progress/:userId': (req, params, body) => {
     const userId = params[0];
     const { dimensionScores, points, callCount } = JSON.parse(body || '{}');
 

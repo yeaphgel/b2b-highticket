@@ -159,8 +159,7 @@ if (command === 'coach') {
 
   printBox('🎯 GROW教练建议', `${levelInfo.emoji} ${levelInfo.name} 水平`);
 
-  console.log(colorize('\n📌 目标 (Goal)\n', 'bright'));
-  console.log(`  提升${sorted.map(([k]) => ({
+  const dimensionNames = {
     ice_breaking: '破冰',
     identify_needs: '识别需求',
     deliver_value: '传达价值',
@@ -171,24 +170,15 @@ if (command === 'coach') {
     close_deal: '促成交易',
     relationship_maintenance: '关系维护',
     hooks: '钩子'
-  }[k]).join('、')}能力，特别关注${sorted[0][0]}`);
+  };
+
+  console.log(colorize('\n📌 目标 (Goal)\n', 'bright'));
+  console.log(`  提升${sorted.map(([k]) => dimensionNames[k]).join('、')}能力，特别关注${dimensionNames[sorted[0][0]]}`);
   console.log(`  预期改进: 本周维度平均分提升 2-3 分`);
 
   console.log(colorize('\n🔍 现状 (Reality)\n', 'bright'));
   console.log(`  整体分数: ${avgScore.toFixed(1)}/10`);
-  console.log(`  最需改进: ${sorted.map(([k, v]) => `${({
-    ice_breaking: '破冰',
-    identify_needs: '识别需求',
-    deliver_value: '传达价值',
-    build_trust: '建立信任',
-    trust_shaping: '信任塑造',
-    custom_solutions: '定制解决',
-    objection_handling: '异议处理',
-    close_deal: '促成交易',
-    relationship_maintenance: '关系维护',
-    hooks: '钩子'
-  }[k])} (${v.toFixed(1)}分)`).join('、')}`);
-
+  console.log(`  最需改进: ${sorted.map(([k, v]) => `${dimensionNames[k]} (${v.toFixed(1)}分)`).join('、')}`);
   console.log(colorize('\n💡 选项 (Options)\n', 'bright'));
   sorted.forEach((item, idx) => {
     const dimName = {
