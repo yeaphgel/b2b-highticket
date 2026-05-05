@@ -69,12 +69,12 @@ Clover A-sales 集成了全球顶级销售方法论：
 
 **OpenClaw 平台安装**（推荐用于知识库管理）
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-openclaw.sh)
 ```
 
 **Hermes 平台安装**（推荐用于通话复盘）
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-hermes.sh)
 ```
 
 安装完成后：
@@ -101,12 +101,12 @@ Through AI analysis, automatically evaluates sales performance across 8 critical
 
 **Installation for OpenClaw** (Recommended for knowledge base management)
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-openclaw.sh)
 ```
 
 **Installation for Hermes** (Recommended for call replay)
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-hermes.sh)
 ```
 
 After installation:
@@ -199,12 +199,12 @@ Clover A-sales 的核心逻辑是**"三层递进"**：
 
 **对于 OpenClaw 用户**（知识库管理、话术指导）
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-openclaw.sh)
 ```
 
 **对于 Hermes 用户**（通话自动复盘、十维度评分）
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-hermes.sh)
 ```
 
 **安装完成后**，在 OpenClaw 或 Hermes 中直接使用：
@@ -217,8 +217,8 @@ bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yeaphgel/clover-a-sales.git
-cd clover-a-sales
+git clone https://github.com/yeaphgel/b2b-highticket.git
+cd b2b-highticket
 
 # 复制环境文件
 cp .env.example .env
@@ -399,7 +399,7 @@ curl -X POST http://localhost:3001/webhook/hermes/call \
 ## 🏗️ 项目结构
 
 ```
-clover-a-sales/
+b2b-highticket/
 ├── dashboard/                      # Web 仪表盘
 │   ├── index.html
 │   ├── css/style.css
@@ -592,7 +592,7 @@ Clover 的十维度不是"凭感觉打分"，而是通过**AI 自动分析通话
 
 **邮箱**: [yeaphgel@gmail.com](mailto:yeaphgel@gmail.com)  
 **X (Twitter)**: [@yeaphgel](https://x.com/yeaphgel)  
-**GitHub**: [yeaphgel/clover-a-sales](https://github.com/yeaphgel/clover-a-sales)
+**GitHub**: [yeaphgel/clover-a-sales](https://github.com/yeaphgel/b2b-highticket)
 
 如需团队培训、定制开发或商务合作，欢迎联系。
 

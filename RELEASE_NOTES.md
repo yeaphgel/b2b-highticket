@@ -17,10 +17,10 @@
 
 ```bash
 # OpenClaw 一键安装
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-openclaw.sh)
 
 # Hermes 一键安装  
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-hermes.sh)
 ```
 
 **优势**：
@@ -224,7 +224,7 @@ cd scripts && node index.js
 
 ```bash
 # 一条命令，即装即用
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-openclaw.sh)
 
 # 优点：
 ✅ 无需管理服务进程
@@ -288,8 +288,8 @@ docker-compose up -d
 - 📖 [README 中文](./README.md)
 - 📖 [OpenClaw 用户手册](./docs/OPENCLAW_USER_GUIDE.md)
 - 📖 [Hermes 用户手册](./docs/HERMES_USER_GUIDE.md)
-- 🐛 [报告问题](https://github.com/yeaphgel/clover-a-sales/issues)
-- 💬 [讨论和反馈](https://github.com/yeaphgel/clover-a-sales/discussions)
+- 🐛 [报告问题](https://github.com/yeaphgel/b2b-highticket/issues)
+- 💬 [讨论和反馈](https://github.com/yeaphgel/b2b-highticket/discussions)
 
 ---
 

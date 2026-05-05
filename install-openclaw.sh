@@ -7,7 +7,7 @@
 #
 # 用法:
 #   bash install-openclaw.sh
-#   curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-openclaw.sh | bash
 #
 
 set -e
@@ -118,7 +118,7 @@ install_skill() {
     log_success "更新完成"
   else
     log_info "正在安装: git clone → ${skill_dir}"
-    git clone https://github.com/yeaphgel/clover-a-sales.git "$skill_dir"
+    git clone https://github.com/yeaphgel/b2b-highticket.git "$skill_dir"
     log_success "克隆完成"
   fi
 
@@ -235,7 +235,7 @@ show_done() {
   echo "  vim ${skill_dir}/.env"
   echo ""
 
-  echo -e "${BLUE}文档${NC}: https://github.com/yeaphgel/clover-a-sales"
+  echo -e "${BLUE}文档${NC}: https://github.com/yeaphgel/b2b-highticket"
   echo ""
 }
 
