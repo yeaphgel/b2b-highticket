@@ -108,6 +108,8 @@ detect_skills_dir() {
 install_skill() {
   local skills_dir="$1"
   local skill_dir="${skills_dir}/clover-a-sales"
+  local max_retries=3
+  local retry_count=0
 
   log_section "安装 Skill 到 Hermes"
   log_info "Skills 目录: ${skills_dir}"
@@ -119,9 +121,33 @@ install_skill() {
     git -C "$skill_dir" pull origin main
     log_success "更新完成"
   else
-    log_info "正在安装: git clone → ${skill_dir}"
-    git clone https://github.com/yeaphgel/b2b-highticket.git "$skill_dir"
-    log_success "克隆完成"
+    log_info "正在克隆仓库: https://github.com/yeaphgel/b2b-highticket.git"
+
+    # 重试机制
+    while [ $retry_count -lt $max_retries ]; do
+      log_info "尝试克隆... (${retry_count}/${max_retries})"
+
+      if git clone https://github.com/yeaphgel/b2b-highticket.git "$skill_dir" 2>&1; then
+        log_success "克隆完成"
+        break
+      else
+        retry_count=$((retry_count + 1))
+        if [ $retry_count -lt $max_retries ]; then
+          log_warning "克隆失败，等待后重试... (${retry_count}/${max_retries})"
+          sleep $((retry_count * 2))  # 指数退避: 2s, 4s, 6s
+        else
+          log_error "克隆失败，已达最大重试次数"
+          log_info "🔧 手动解决方案："
+          log_info "  1. 确保网络连接正常"
+          log_info "  2. 手动执行："
+          log_info "     cd ${skills_dir}"
+          log_info "     git clone https://github.com/yeaphgel/b2b-highticket.git clover-a-sales"
+          log_info "  3. 或者使用 SSH（如果配置了 SSH 密钥）："
+          log_info "     git clone git@github.com:yeaphgel/b2b-highticket.git clover-a-sales"
+          exit 1
+        fi
+      fi
+    done
   fi
 
   cd "$skill_dir"
