@@ -1,14 +1,16 @@
 #!/bin/bash
 #
-# Clover A-sales for OpenClaw - 一键安装脚本
+# Clover A-sales for OpenClaw - Skill 一键安装脚本
 #
-# 用法: bash install-openclaw.sh
-#       或 curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh | bash
+# 将 Clover A-sales 作为 Skill 安装到 OpenClaw 的 Skills 目录。
+# 安装完成后无需启动任何服务，直接在 OpenClaw 中使用 /sales 指令。
+#
+# 用法:
+#   bash install-openclaw.sh
+#   curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh | bash
 #
 
 set -e
-
-# ─── 颜色定义 ─────────────────────────────────────────────────
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -17,182 +19,223 @@ BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 NC='\033[0m'
 
-# ─── 日志函数 ─────────────────────────────────────────────────
-
-log_info() {
-  echo -e "${BLUE}ℹ${NC} $1"
-}
-
-log_success() {
-  echo -e "${GREEN}✓${NC} $1"
-}
-
-log_warning() {
-  echo -e "${YELLOW}⚠${NC} $1"
-}
-
-log_error() {
-  echo -e "${RED}✗${NC} $1"
-}
-
+log_info()    { echo -e "${BLUE}ℹ${NC} $1"; }
+log_success() { echo -e "${GREEN}✓${NC} $1"; }
+log_warning() { echo -e "${YELLOW}⚠${NC} $1"; }
+log_error()   { echo -e "${RED}✗${NC} $1"; }
 log_section() {
   echo ""
   echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-  echo -e "${PURPLE}$1${NC}"
+  echo -e "${PURPLE}  $1${NC}"
   echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
   echo ""
 }
 
-# ─── 检查 OpenClaw ────────────────────────────────────────────
+# ─── 环境检查 ────────────────────────────────────────────────
 
-check_openclaw() {
-  log_section "OpenClaw 环境检查"
+check_deps() {
+  log_section "环境检查"
 
-  if command -v openclaw &> /dev/null; then
-    OPENCLAW_VERSION=$(openclaw --version 2>/dev/null || echo "未知版本")
-    log_success "OpenClaw 已安装: $OPENCLAW_VERSION"
-  elif command -v oc &> /dev/null; then
-    log_success "OpenClaw CLI 已安装"
-  elif [ -d "$HOME/.openclaw" ] || [ -d "/opt/openclaw" ]; then
-    log_success "OpenClaw 已安装"
-  else
-    log_warning "未检测到 OpenClaw，但可以继续安装"
-    log_info "OpenClaw 下载地址: https://openclaw.com/download"
-    read -p "是否继续? (y/n) " -n 1 -r
-    echo
-    if ! [[ $REPLY =~ ^[Yy]$ ]]; then
-      exit 1
-    fi
-  fi
-}
-
-# ─── 运行通用安装脚本 ────────────────────────────────────────
-
-run_base_install() {
-  log_section "运行基础安装"
-
-  if [ -f "install.sh" ]; then
-    bash install.sh
-  else
-    log_error "找不到 install.sh"
+  if ! command -v node &>/dev/null; then
+    log_error "未找到 Node.js，请先安装 Node.js 18+"
+    log_info  "下载地址: https://nodejs.org/"
     exit 1
   fi
+  local ver
+  ver=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+  if [ "$ver" -lt 18 ]; then
+    log_error "Node.js 版本过低（当前 $(node -v)），需要 18+"
+    exit 1
+  fi
+  log_success "Node.js $(node -v)"
+
+  if ! command -v npm &>/dev/null; then
+    log_error "未找到 npm"
+    exit 1
+  fi
+  log_success "npm $(npm -v)"
+
+  if ! command -v git &>/dev/null; then
+    log_error "未找到 git，安装 Skill 需要 git"
+    exit 1
+  fi
+  log_success "git $(git --version | awk '{print $3}')"
 }
 
-# ─── 配置 OpenClaw 集成 ──────────────────────────────────────
+# ─── 检测 Skills 目录 ─────────────────────────────────────────
 
-setup_openclaw_integration() {
-  log_section "OpenClaw 集成配置"
+detect_skills_dir() {
+  local dir=""
 
-  log_info "创建 OpenClaw 配置示例..."
+  # 1. openclaw CLI
+  if command -v openclaw &>/dev/null; then
+    dir=$(openclaw skills dir 2>/dev/null || true)
+  fi
 
-  cat > openclaw-config.example.json << 'EOF'
-{
-  "openclaw": {
-    "skillName": "Clover A-sales",
-    "skillDescription": "AI 驱动的销售教练系统",
-    "apiEndpoint": "http://localhost:3000",
-    "webhookUrl": "http://localhost:3000/webhook/openclaw",
-    "secret": "${OPENCLAW_SECRET}",
-    "capabilities": [
-      "gamification_dashboard",
-      "grow_coaching",
-      "call_analysis",
-      "performance_tracking",
-      "d1_d30_reminders",
-      "leaderboard"
-    ]
-  },
-  "features": {
-    "enableGamification": true,
-    "enableAutoAnalysis": true,
-    "enableNotifications": true,
-    "enableCRMSync": true
-  }
+  # 2. 环境变量
+  dir="${dir:-${OPENCLAW_SKILLS_DIR:-}}"
+
+  # 3. 常见默认路径
+  if [ -z "$dir" ]; then
+    for candidate in \
+      "$HOME/.agents/skills" \
+      "$HOME/.openclaw/skills" \
+      "$HOME/Library/Application Support/OpenClaw/skills"
+    do
+      if [ -d "$candidate" ]; then
+        dir="$candidate"
+        break
+      fi
+    done
+  fi
+
+  # 4. 交互询问
+  if [ -z "$dir" ]; then
+    dir="$HOME/.agents/skills"
+    echo ""
+    log_warning "无法自动检测 OpenClaw 的 Skills 目录"
+    read -rp "  请输入 Skills 目录路径（直接回车使用默认 ${dir}）: " input
+    [ -n "$input" ] && dir="$input"
+  fi
+
+  echo "$dir"
 }
-EOF
 
-  if [ ! -f "openclaw-config.json" ]; then
-    cp openclaw-config.example.json openclaw-config.json
-    log_success "OpenClaw 配置已创建: openclaw-config.json"
+# ─── 安装 Skill ───────────────────────────────────────────────
+
+install_skill() {
+  local skills_dir="$1"
+  local skill_dir="${skills_dir}/clover-a-sales"
+
+  log_section "安装 Skill 到 OpenClaw"
+  log_info "Skills 目录: ${skills_dir}"
+
+  mkdir -p "$skills_dir"
+
+  if [ -d "${skill_dir}/.git" ]; then
+    log_info "Skill 已存在，拉取最新更新..."
+    git -C "$skill_dir" pull origin main
+    log_success "更新完成"
   else
-    log_info "openclaw-config.json 已存在"
+    log_info "正在安装: git clone → ${skill_dir}"
+    git clone https://github.com/yeaphgel/clover-a-sales.git "$skill_dir"
+    log_success "克隆完成"
+  fi
+
+  cd "$skill_dir"
+
+  log_info "安装 Node.js 依赖..."
+  npm install --prefer-offline --no-audit --silent
+  log_success "依赖安装完成"
+}
+
+# ─── 配置环境变量 ─────────────────────────────────────────────
+
+setup_env() {
+  local skill_dir="$1"
+  cd "$skill_dir"
+
+  log_section "配置环境变量"
+
+  if [ ! -f .env ]; then
+    cp .env.example .env
+    log_success ".env 文件已创建"
+  else
+    log_info ".env 文件已存在，跳过创建"
+  fi
+
+  # 从当前 shell 环境自动写入 ARK_API_KEY
+  if [ -n "${ARK_API_KEY:-}" ]; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' "s|^ARK_API_KEY=.*|ARK_API_KEY=${ARK_API_KEY}|" .env
+    else
+      sed -i "s|^ARK_API_KEY=.*|ARK_API_KEY=${ARK_API_KEY}|" .env
+    fi
+    log_success "ARK_API_KEY 已自动写入 .env"
+  else
+    echo ""
+    log_warning "需要填写 ARK_API_KEY（豆包/火山引擎 API 密钥）才能使用知识库搜索"
+    read -rp "  请输入 ARK_API_KEY（留空则稍后手动编辑 .env）: " key_input
+    if [ -n "$key_input" ]; then
+      if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s|^ARK_API_KEY=.*|ARK_API_KEY=${key_input}|" .env
+      else
+        sed -i "s|^ARK_API_KEY=.*|ARK_API_KEY=${key_input}|" .env
+      fi
+      log_success "ARK_API_KEY 已写入 .env"
+    else
+      log_warning "已跳过，请稍后编辑: ${skill_dir}/.env"
+    fi
+  fi
+
+  # 可选：OpenClaw Secret
+  if [ -n "${OPENCLAW_SECRET:-}" ]; then
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' "s|^OPENCLAW_SECRET=.*|OPENCLAW_SECRET=${OPENCLAW_SECRET}|" .env
+    else
+      sed -i "s|^OPENCLAW_SECRET=.*|OPENCLAW_SECRET=${OPENCLAW_SECRET}|" .env
+    fi
+    log_success "OPENCLAW_SECRET 已自动写入 .env"
   fi
 }
 
-# ─── 输出集成指南 ────────────────────────────────────────────
+# ─── 构建知识库索引 ───────────────────────────────────────────
 
-show_openclaw_guide() {
-  log_section "OpenClaw 集成指南"
+build_index() {
+  local skill_dir="$1"
+  cd "$skill_dir"
 
-  echo -e "${BLUE}方案 A: 本地 Skill 集成（推荐）${NC}"
-  echo ""
-  echo "  1. 启动 Clover 服务:"
-  echo "     ${YELLOW}npm run start:all${NC}"
-  echo ""
-  echo "  2. 在 OpenClaw 中添加本地 Skill:"
-  echo "     ${YELLOW}Settings → Skills → Add Skill${NC}"
-  echo ""
-  echo "     • Skill 名称: Clover A-sales"
-  echo "     • 类型: Local Integration"
-  echo "     • API 端口: 3000"
-  echo "     • Webhook URL: http://localhost:3000/webhook/openclaw"
-  echo ""
-  echo "  3. 配置 API 密钥 (.env 文件):"
-  echo "     ${YELLOW}OPENCLAW_SECRET=your_secret_key${NC}"
-  echo "     ${YELLOW}ARK_API_KEY=your_api_key${NC}"
-  echo ""
-  echo "  4. 在 OpenClaw 中测试:"
-  echo "     @clover dashboard"
-  echo "     @clover coach <userId>"
-  echo "     @clover leaderboard weekly"
-  echo ""
+  log_section "构建知识库向量索引"
 
-  echo -e "${BLUE}方案 B: 云部署集成${NC}"
+  if ! grep -q "^ARK_API_KEY=." .env 2>/dev/null; then
+    log_warning "ARK_API_KEY 未配置，跳过索引构建"
+    log_info  "可稍后进入 Skill 目录手动运行："
+    log_info  "  cd ${skill_dir}/scripts && node index.js"
+    return
+  fi
+
+  log_info "正在构建索引（首次约需 1-3 分钟）..."
+  if (cd scripts && node index.js); then
+    log_success "知识库索引构建完成"
+  else
+    log_warning "索引构建失败，可稍后手动运行: cd ${skill_dir}/scripts && node index.js"
+  fi
+}
+
+# ─── 完成提示 ─────────────────────────────────────────────────
+
+show_done() {
+  local skill_dir="$1"
+
   echo ""
-  echo "  1. 将 Clover 部署到公网服务器"
-  echo "  2. 在 OpenClaw 中添加远程 Skill:"
-  echo "     • 类型: Remote Integration"
-  echo "     • API 端点: https://your-domain/api"
+  echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
+  echo -e "${GREEN}║  ✅  Clover A-sales Skill 安装完成！           ║${NC}"
+  echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
   echo ""
 
-  echo -e "${BLUE}通用命令${NC}:"
-  echo ""
-  echo "  启动所有服务:"
-  echo "    ${YELLOW}npm run start:all${NC}"
-  echo ""
-  echo "  启动单个服务:"
-  echo "    ${YELLOW}npm run dashboard${NC}    # 仪表板 API"
-  echo "    ${YELLOW}npm run scheduler${NC}    # 定时任务"
-  echo "    ${YELLOW}npm run webhook${NC}      # Webhook 处理"
+  echo -e "${BLUE}Skill 位置${NC}:  ${skill_dir}"
   echo ""
 
-  echo -e "${BLUE}验证安装${NC}:"
-  echo ""
-  echo "  访问 Dashboard:"
-  echo "    ${YELLOW}http://localhost:3000${NC}"
-  echo ""
-  echo "  检查 API 健康状态:"
-  echo "    ${YELLOW}curl http://localhost:3000/api/health${NC}"
-  echo ""
-
-  echo -e "${BLUE}常见命令${NC}:"
-  echo ""
-  echo "  查看用户仪表板:"
-  echo "    ${YELLOW}node scripts/coach-cli.js dashboard <userId>${NC}"
-  echo ""
-  echo "  查看周排行:"
-  echo "    ${YELLOW}node scripts/coach-cli.js leaderboard weekly${NC}"
-  echo ""
-  echo "  查看 GROW 教练建议:"
-  echo "    ${YELLOW}node scripts/coach-cli.js coach <userId>${NC}"
+  echo -e "${BLUE}在 OpenClaw 中直接使用${NC}:"
+  echo "  /sales        → 进入销售教练模式"
+  echo "  /新手          → 新手入门 ToB 销售指南"
+  echo "  /早报          → 今日销售早报（7 条洞察）"
+  echo "  /日报          → 引导填写销售日报"
+  echo "  /客户列表      → 查看所有客户档案"
+  echo "  /重建索引      → 更新知识库索引"
   echo ""
 
-  echo -e "${BLUE}文档和支持${NC}:"
+  echo -e "${BLUE}自然语言触发示例${NC}:"
+  echo '  "客户说价格太贵怎么办？"  → 话术指导'
+  echo '  "帮我分析 A 客户的进展"   → 客户档案 + 阶段建议'
+  echo '  "今天早报"                → 每日洞察推送'
   echo ""
-  echo "  项目地址: https://github.com/yeaphgel/clover-a-sales"
-  echo "  邮件支持: yeaphgel@gmail.com"
-  echo "  社交媒体: @yeaphgel (X/Twitter)"
+
+  echo -e "${BLUE}若需修改配置${NC}:"
+  echo "  vim ${skill_dir}/.env"
+  echo ""
+
+  echo -e "${BLUE}文档${NC}: https://github.com/yeaphgel/clover-a-sales"
   echo ""
 }
 
@@ -201,27 +244,21 @@ show_openclaw_guide() {
 main() {
   echo ""
   echo -e "${BLUE}╔════════════════════════════════════════════════╗${NC}"
-  echo -e "${BLUE}║ 🎮 Clover A-sales + OpenClaw - 安装程序      ║${NC}"
-  echo -e "${BLUE}║    销售教练系统 × OpenClaw AI 智能助手        ║${NC}"
+  echo -e "${BLUE}║  🎮 Clover A-sales × OpenClaw Skill 安装程序  ║${NC}"
   echo -e "${BLUE}╚════════════════════════════════════════════════╝${NC}"
   echo ""
 
-  check_openclaw
-  run_base_install
-  setup_openclaw_integration
-  show_openclaw_guide
+  check_deps
 
-  echo -e "${GREEN}✨ OpenClaw 集成安装完成！${NC}"
-  echo ""
-  echo "下一步:"
-  echo "  1. 编辑 .env 文件填写 API 密钥"
-  echo "  2. 运行 ${YELLOW}npm run start:all${NC} 启动服务"
-  echo "  3. 在 OpenClaw 中添加 Clover Skill"
-  echo ""
+  SKILLS_DIR=$(detect_skills_dir)
+  SKILL_DIR="${SKILLS_DIR}/clover-a-sales"
+
+  install_skill  "$SKILLS_DIR"
+  setup_env      "$SKILL_DIR"
+  build_index    "$SKILL_DIR"
+  show_done      "$SKILL_DIR"
 }
 
-# 错误处理
-trap 'log_error "安装过程中出错"; exit 1' ERR
+trap 'echo ""; log_error "安装中断"; exit 1' ERR INT
 
-# 运行主程序
 main
