@@ -633,6 +633,12 @@ MIT License - 详见 [LICENSE](./LICENSE)
 
 ---
 
-**Clover A-sales** © 2024 by [yeaphgel](https://github.com/yeaphgel)
+**Clover A-sales** © 2026 by [yeaphgel](https://github.com/yeaphgel)
 
 Made with ❤️ for Sales Teams Worldwide
+
+---
+
+## 🙏 致谢
+
+特别感谢 [daruisang](https://github.com/LSangdarui) 的 [**ToB 销售助手 Skill**](https://github.com/LSangdarui/tob-sales-assistant) 项目带来的灵感和启发。

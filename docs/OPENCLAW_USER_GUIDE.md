@@ -574,5 +574,5 @@ Clover 会根据你的表现自动生成个性化的 GROW 建议。
 
 ---
 
-**Clover A-sales** © 2024 by [yeaphgel](https://github.com/yeaphgel)  
+**Clover A-sales** © 2026 by [yeaphgel](https://github.com/yeaphgel)  
 Made with ❤️ for Sales Teams Worldwide
