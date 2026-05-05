@@ -5,10 +5,10 @@
   "main": "scripts/index.js",
   "author": "yeaphgel",
   "license": "MIT",
-  "homepage": "https://github.com/yeaphgel/clover-a-sales",
+  "homepage": "https://github.com/yeaphgel/b2b-highticket",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yeaphgel/clover-a-sales.git"
+    "url": "https://github.com/yeaphgel/b2b-highticket.git"
   },
   "engines": {
     "node": ">=18.0.0"
