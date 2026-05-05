@@ -256,6 +256,20 @@ const routes = {
     timestamp: new Date().toISOString(),
     usersCount: getAllUsers().length,
     port: PORT
+  }),
+
+  // GET /  — 根路径状态页
+  '/': () => ({
+    name: 'Clover A-sales Dashboard',
+    version: '1.0.0',
+    status: 'ok',
+    endpoints: {
+      health: '/api/health',
+      dashboard: '/api/dashboard/:userId',
+      leaderboard: '/api/leaderboard/weekly',
+      dimension: '/api/dimension/:userId'
+    },
+    timestamp: new Date().toISOString()
   })
 };
 
