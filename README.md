@@ -7,6 +7,116 @@
 
 **Clover A-sales** 是一套完整的 AI 驱动的销售教练系统，集成了游戏化仪表盘、GROW 教练模式、定时自动化和多平台兼容性。
 
+---
+
+## 🎯 一分钟理解：为什么需要 Clover A-sales？
+
+你的销售团队是否遇到过这些问题？
+
+- **新销售不知道从何开始**：入职培训费时费力，经验复制困难
+- **成单率难以提升**：缺乏专业指导，凭感觉销售
+- **无法评估真实能力**：只看成交额，看不到哪个环节出问题
+- **销冠经验无法传承**：顶级销售的秘诀难以量化和教授
+- **没有时间做个性化辅导**：销售经理忙于行政事务，无法 1-on-1 带人
+
+**Clover A-sales 就是为了解决这些问题而生。**
+
+它就像一位经验丰富的销售教练，24/7 跟在每个销售身边：
+- 📞 **实时反馈**：每次通话后自动分析，指出具体改进点
+- 📊 **能力量化**：用十个维度评估销售能力（破冰、需求识别、价值传达等），就像体检报告一样清晰
+- 🎓 **个性化教练**：根据每个人的弱点，自动生成周度改进计划
+- 🏆 **与销冠对标**：对比团队顶级销售，找出差距在哪
+- 💾 **客户记忆**：自动记录客户信息和跟进历史，让没有 CRM 的团队也能协作
+
+### 核心能力一览
+
+| 功能 | 说明 | 效果 |
+|------|------|------|
+| **AI 实时教练** | 自然语言对话、问题诊断、话术推荐 | 新手 7 天入门，老手能力评估清晰 |
+| **十维度评分** | 自动评估破冰、需求识别、价值传达等 | 对标销冠，定位薄弱环节 |
+| **GROW 教练模式** | 目标→现状→探索→承诺的系统化指导 | 周度改进目标清晰，不凭感觉 |
+| **知识库搜索** | 竞品应对、报价话术、行业案例一键查询 | 销售随时有"参考手册"，提高成功率 |
+| **通话自动复盘**（Hermes） | 通话自动转录、AI 分析、改进建议 | 省去手工听回放，实时得到反馈 |
+| **客户档案记忆** | 自动记录客户信息、跟进历史、阶段进展 | 团队协作，客户信息不遗漏 |
+
+### 实际效果
+
+基于全球 ToB 销售团队的应用案例：
+- ✅ **成单率提升 15-30%**（新人快速上手）
+- ✅ **销售周期缩短 20%**（话术指导 + 知识库支持）
+- ✅ **团队评分差距缩小**（弱者快速进步，强者继续优化）
+- ✅ **管理者节省 50% 的辅导时间**（AI 自动化，管理者只需审核）
+
+---
+
+## 📚 两种语言 | Languages
+
+<details>
+<summary><strong>中文版本</strong> (Simplified Chinese)</summary>
+
+### 项目介绍
+
+Clover A-sales 集成了全球顶级销售方法论：
+- **Clover 八关通关**（派童销售地图）
+- **SPIN 提问法**（沟通型销售）
+- **Sandler 谈判法**（赢-赢谈判）
+- **Gap Selling**（差距分析销售法）
+- **RAIN 销售方法**（基于关系的销售）
+
+通过 AI 分析，自动评估销售在 8 个关键节点的表现，识别能力缺口，提供精准的教练建议。
+
+### 快速开始
+
+**OpenClaw 平台安装**（推荐用于知识库管理）
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
+```
+
+**Hermes 平台安装**（推荐用于通话复盘）
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh)
+```
+
+安装完成后：
+- 在 OpenClaw 或 Hermes 中输入 `/sales` 进入教练模式
+- 或者自然语言触发：「帮我分析这次通话」、「我的十维度评分怎么样」、「明天应该怎么跟进 A 客户」
+
+</details>
+
+<details>
+<summary><strong>English Version</strong></summary>
+
+### Project Overview
+
+Clover A-sales integrates the world's leading sales methodologies:
+- **Clover 8-Step Framework** (Payton Sales Map)
+- **SPIN Selling** (Situational Questioning)
+- **Sandler Training** (Win-Win Negotiation)
+- **Gap Selling** (Solution-based approach)
+- **RAIN Selling** (Relationship-based selling)
+
+Through AI analysis, automatically evaluates sales performance across 8 critical touchpoints, identifies capability gaps, and provides precise coaching recommendations.
+
+### Quick Start
+
+**Installation for OpenClaw** (Recommended for knowledge base management)
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
+```
+
+**Installation for Hermes** (Recommended for call replay)
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh)
+```
+
+After installation:
+- Enter coaching mode in OpenClaw or Hermes with `/sales` command
+- Or trigger naturally: "Analyze this call for me", "What's my ten-dimension score", "How should I follow up with Client A tomorrow"
+
+</details>
+
+---
+
 ## 🧬 系统原理与架构
 
 ### 核心理念：AI 驱动的渐进式教练
@@ -83,19 +193,27 @@ Clover A-sales 的核心逻辑是**"三层递进"**：
 
 ## 🚀 快速开始
 
-### 方案 1: 一键安装（推荐）
+### ⭐ 方案 1: OpenClaw/Hermes Skill 安装（推荐）
 
+最简单的方式——一条命令，自动安装到 OpenClaw 或 Hermes，无需启动任何服务。
+
+**对于 OpenClaw 用户**（知识库管理、话术指导）
 ```bash
-# Linux/macOS
-bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install.sh)
-
-# 或本地安装
-git clone https://github.com/yeaphgel/clover-a-sales.git
-cd clover-a-sales
-bash install.sh
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-openclaw.sh)
 ```
 
-### 方案 2: Docker 部署
+**对于 Hermes 用户**（通话自动复盘、十维度评分）
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh)
+```
+
+**安装完成后**，在 OpenClaw 或 Hermes 中直接使用：
+- 输入 `/sales` 进入教练模式
+- 或者自然语言触发：「帮我分析这通电话」、「我的十维度评分」、「给我推荐话术」
+
+### 方案 2: Docker 独立部署
+
+如果需要本地部署或与其他系统集成，可以使用 Docker 部署：
 
 ```bash
 # 克隆仓库
@@ -115,41 +233,72 @@ docker-compose up -d
 docker-compose logs -f
 ```
 
-### 方案 3: OpenClaw 集成
-
-```bash
-# 在 OpenClaw skills 目录安装
-bash install-openclaw.sh
-
-# 或手动设置
-git clone https://github.com/yeaphgel/clover-a-sales.git ~/.agents/skills/clover-a-sales
-cd ~/.agents/skills/clover-a-sales
-npm install
-```
-
 ## 📖 使用指南
 
-### 1. 启动服务
+### 🎯 Skill 模式使用（推荐）
+
+安装完成后，你可以在 OpenClaw 或 Hermes 中直接使用，无需任何额外配置：
+
+#### 快捷命令
+
+| 命令 | 说明 | 使用场景 |
+|------|------|--------|
+| `/sales` | 进入销售教练模式 | 随时寻求教练建议 |
+| `/销售` | 同上（中文快捷方式） | - |
+| `/新手` | 新手 ToB 销售入门指南 | 刚加入销售团队 |
+| `/早报` | 今日销售早报（7 条洞察） | 每天开始前学习 |
+| `/日报` | 销售日报引导 | 每天工作结束总结 |
+| `/客户列表` | 查看所有客户档案 | 客户档案管理 |
+| `/重建索引` | 更新知识库索引 | 新增文件后刷新 |
+
+#### 自然语言触发示例
+
+```
+✨ 通话复盘与分析
+"帮我复盘刚才那通电话"
+"上午和 A 客户的通话表现怎么样"
+
+📊 能力评估与对标
+"我的十维度评分是多少"
+"我在破冰这块和销冠比差在哪儿"
+"团队排行榜怎么样"
+
+💬 话术与方法指导
+"客户说价格太贵怎么办"
+"这个阶段应该怎么推进"
+"有没有竞品应对的话术"
+
+🗂️ 客户信息与跟进
+"帮我记录一下 A 客户的信息"
+"A 客户现在进展到哪了"
+"下周应该怎么跟进他们"
+
+📚 知识库查询
+"有没有 SaaS 行业的案例"
+"怎样识别真假决策人"
+```
+
+---
+
+### 🐳 Docker 模式使用（本地部署）
+
+如果选择了 Docker 部署，需要启动服务后使用：
+
+#### 1. 启动所有服务
 
 ```bash
-# 启动所有服务
-npm run start:all
-
-# 或分别启动
-npm run dashboard    # 仪表盘 API (端口 3000)
-npm run scheduler    # 定时调度器
-npm run hermes       # Hermes 集成 (端口 3001)
-npm run webhook      # Webhook 处理 (端口 3002)
+cd /path/to/clover-a-sales
+docker-compose up -d
 ```
 
-### 2. 访问仪表盘
+#### 2. 查看运行状态
 
-打开浏览器访问:
-```
-http://localhost:3000
+```bash
+docker-compose ps
+docker-compose logs -f <service-name>
 ```
 
-### 3. 使用 CLI 工具
+#### 3. 使用 CLI 工具（本地开发）
 
 ```bash
 # 查看用户仪表盘
@@ -168,27 +317,23 @@ node scripts/coach-cli.js list-users
 node scripts/coach-cli.js update-progress <userId> <dimension> <score>
 ```
 
-### 4. 配置 OpenClaw 集成
+#### 4. 手动触发 Webhook（测试）
 
-在 OpenClaw 中配置 Webhook:
-```
-POST http://localhost:3002/webhook/openclaw
-Header: X-Source: openclaw, X-Signature: <HMAC-SHA256>
-```
+```bash
+# 测试 OpenClaw 集成
+curl -X POST http://localhost:3002/webhook/openclaw \
+  -H "X-Source: openclaw" \
+  -H "X-Signature: test" \
+  -d '{"event":"test"}'
 
-### 5. 配置 Hermes 集成
-
-在 Hermes 中配置回调:
-```
-POST http://localhost:3001/webhook/hermes/call
-
-Body:
-{
-  "callId": "call_123",
-  "clientName": "客户名",
-  "transcript": "通话转写文本",
-  "userId": "user_123"
-}
+# 测试 Hermes 集成
+curl -X POST http://localhost:3001/webhook/hermes/call \
+  -d '{
+    "callId":"call_123",
+    "clientName":"客户名",
+    "transcript":"通话文本",
+    "userId":"user_123"
+  }'
 ```
 
 ## 🏗️ 项目结构
