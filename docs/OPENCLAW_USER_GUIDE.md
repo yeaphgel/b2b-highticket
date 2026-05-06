@@ -24,9 +24,23 @@
 
 ✅ 已安装 OpenClaw 平台  
 ✅ 已通过 `bash install-openclaw.sh` 安装 Clover A-sales Skill  
-✅ 配置了 `.env` 文件的 ARK_API_KEY（知识库搜索需要）  
+✅ 配置了 `.env` 文件的 JINA_API_KEY（可选，知识库搜索需要）  
 
 **重要**：Clover A-sales 以 OpenClaw Skill 形式运行，安装完成后**自动可用**，无需启动任何服务。
+
+#### 📌 关于 JINA_API_KEY 配置
+
+知识库搜索功能可选配置。如果需要让 Clover 搜索公司的销售资料、竞品信息、案例库等，需要配置 Jina AI API Key（完全免费）：
+
+**快速获取 Jina API Key**（5 分钟）：
+1. 访问 https://jina.ai
+2. 邮箱或 Google 账号快速注册
+3. 进入 Dashboard → API Keys → Create API Key
+4. 复制生成的 key，添加到 .env 文件：`JINA_API_KEY=your_key`
+
+**免费额度**：每月 1M tokens（足以处理 100 万+ 字的知识库）
+
+详见 README.md 中的 [🔑 API Key 配置](../README.md#-api-key-配置) 部分。
 
 ### 第一次使用（1分钟快速体验）
 
@@ -413,7 +427,7 @@ Clover 会根据你的表现自动生成个性化的 GROW 建议。
 4. **如果还是不行，检查 .env 配置**
    ```bash
    cat ~/.agents/skills/clover-a-sales/.env
-   # 确认 ARK_API_KEY 已填写（知识库搜索需要）
+   # JINA_API_KEY 是可选的，仅在需要知识库搜索时配置
    ```
 
 ### Q5: 知识库搜索返回"没有结果"怎么办？
@@ -481,10 +495,11 @@ Clover 会根据你的表现自动生成个性化的 GROW 建议。
 
 **解决步骤**：
 
-1. **确认 ARK_API_KEY 已配置**
+1. **确认 JINA_API_KEY 已配置**
    ```bash
-   grep "^ARK_API_KEY=" ~/.agents/skills/clover-a-sales/.env
-   # 应该看到 ARK_API_KEY=sk_xxx...（不能是空的）
+   grep "^JINA_API_KEY=" ~/.agents/skills/clover-a-sales/.env
+   # 应该看到 JINA_API_KEY=jina_xxx...（如果需要知识库搜索）
+   # JINA_API_KEY 可选，未配置时不影响其他功能
    ```
 
 2. **检查知识库文件是否存在**

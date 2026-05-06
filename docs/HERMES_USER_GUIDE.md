@@ -24,9 +24,23 @@
 
 ✅ 已安装 Hermes 语音平台  
 ✅ 已通过 `bash install-hermes.sh` 安装 Clover A-sales Skill  
-✅ 配置了 `.env` 文件的 ARK_API_KEY（可选，知识库搜索需要）  
+✅ 配置了 `.env` 文件的 JINA_API_KEY（可选，知识库搜索需要）  
 
 **重要**：Clover A-sales 作为 Hermes Skill 自动运行，安装完成后**无需启动任何服务**，Hermes 会在通话结束后自动调用 Clover 进行分析。
+
+#### 📌 关于 JINA_API_KEY 配置
+
+知识库搜索功能可选配置。如果需要让 Clover 搜索公司的销售资料、竞品信息、案例库等，需要配置 Jina AI API Key（完全免费）：
+
+**快速获取 Jina API Key**（5 分钟）：
+1. 访问 https://jina.ai
+2. 邮箱或 Google 账号快速注册
+3. 进入 Dashboard → API Keys → Create API Key
+4. 复制生成的 key，添加到 .env 文件：`JINA_API_KEY=your_key`
+
+**免费额度**：每月 1M tokens（足以处理 100 万+ 字的知识库）
+
+详见 README.md 中的 [🔑 API Key 配置](../README.md#-api-key-配置) 部分。
 
 ### 第一次使用（1分钟）
 
@@ -530,6 +544,7 @@ Layer 3：对标分析
    ```bash
    cat ~/.agents/skills/clover-a-sales/.env
    # 确保配置格式正确，没有多余空格
+   # JINA_API_KEY 是可选的，仅在需要知识库搜索时配置
    ```
 
 3. **重建索引**
