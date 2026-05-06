@@ -256,6 +256,20 @@ const routes = {
     timestamp: new Date().toISOString(),
     usersCount: getAllUsers().length,
     port: PORT
+  }),
+
+  // GET /  — 根路径状态页
+  '/': () => ({
+    name: 'Clover A-sales Dashboard',
+    version: '1.0.0',
+    status: 'ok',
+    endpoints: {
+      health: '/api/health',
+      dashboard: '/api/dashboard/:userId',
+      leaderboard: '/api/leaderboard/weekly',
+      dimension: '/api/dimension/:userId'
+    },
+    timestamp: new Date().toISOString()
   })
 };
 
@@ -349,8 +363,13 @@ const server = http.createServer((req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`🎮 Clover A-sales Dashboard API running on http://localhost:${PORT}`);
-  console.log(`   Dashboard: http://localhost:${PORT}/dashboard`);
-  console.log(`   API Docs: http://localhost:${PORT}/api-docs`);
+const HOST = process.env.HOST || '0.0.0.0';
+server.listen(PORT, HOST, () => {
+  const displayHost = HOST === '0.0.0.0' ? 'localhost' : HOST;
+  console.log(`🎮 Clover A-sales Dashboard API running on http://${displayHost}:${PORT}`);
+  console.log(`   Dashboard: http://${displayHost}:${PORT}/dashboard`);
+  console.log(`   API Docs: http://${displayHost}:${PORT}/api-docs`);
+  if (HOST === '0.0.0.0') {
+    console.log(`   外网访问: http://{你的服务器IP}:${PORT}`);
+  }
 });

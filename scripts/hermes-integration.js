@@ -371,9 +371,15 @@ function startServer() {
     res.end(JSON.stringify({ error: 'Not Found' }));
   });
 
-  server.listen(PORT, () => {
-    log('SUCCESS', `Hermes 集成服务启动在 http://localhost:${PORT}`);
-    log('INFO', `Webhook 地址: POST http://localhost:${PORT}/webhook/hermes/call`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  server.listen(PORT, HOST, () => {
+    const displayHost = HOST === '0.0.0.0' ? 'localhost' : HOST;
+    log('SUCCESS', `Hermes 集成服务启动在 http://${displayHost}:${PORT}`);
+    log('INFO', `本地访问: http://localhost:${PORT}/health`);
+    if (HOST === '0.0.0.0') {
+      log('INFO', `外网访问: http://{你的服务器IP}:${PORT}/health`);
+    }
+    log('INFO', `Webhook 地址: POST http://${displayHost}:${PORT}/webhook/hermes/call`);
   });
 
   process.on('SIGINT', () => {

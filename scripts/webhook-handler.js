@@ -343,13 +343,18 @@ function startServer() {
     });
   });
 
-  server.listen(PORT, () => {
-    log('SUCCESS', `Webhook 服务启动在 http://localhost:${PORT}`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  server.listen(PORT, HOST, () => {
+    const displayHost = HOST === '0.0.0.0' ? 'localhost' : HOST;
+    log('SUCCESS', `Webhook 服务启动在 http://${displayHost}:${PORT}`);
     console.log(`
 Webhook 端点:
-  - OpenClaw:  POST http://localhost:${PORT}/webhook/openclaw
-  - Calendar:  POST http://localhost:${PORT}/webhook/calendar
-  - Email:     POST http://localhost:${PORT}/webhook/email
+  - OpenClaw:  POST http://${displayHost}:${PORT}/webhook/openclaw
+  - Calendar:  POST http://${displayHost}:${PORT}/webhook/calendar
+  - Email:     POST http://${displayHost}:${PORT}/webhook/email
+${HOST === '0.0.0.0' ? `
+外网访问: 将 localhost 替换为你的服务器 IP
+  - OpenClaw:  POST http://{服务器IP}:${PORT}/webhook/openclaw` : ''}
 
 Header 示例:
   X-Source: openclaw

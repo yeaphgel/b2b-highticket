@@ -1,14 +1,16 @@
 #!/bin/bash
 #
-# Clover A-sales for Hermes - 一键安装脚本
+# Clover A-sales for Hermes - Skill 一键安装脚本
 #
-# 用法: bash install-hermes.sh
-#       或 curl -fsSL https://raw.githubusercontent.com/yeaphgel/clover-a-sales/main/install-hermes.sh | bash
+# 将 Clover A-sales 作为 Skill 安装到 Hermes 的 Skills 目录。
+# 安装完成后无需启动任何服务，Hermes 通话结束后自动触发 AI 复盘。
+#
+# 用法:
+#   bash install-hermes.sh
+#   curl -fsSL https://raw.githubusercontent.com/yeaphgel/b2b-highticket/main/install-hermes.sh | bash
 #
 
 set -e
-
-# ─── 颜色定义 ─────────────────────────────────────────────────
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -17,282 +19,265 @@ BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 NC='\033[0m'
 
-# ─── 日志函数 ─────────────────────────────────────────────────
-
-log_info() {
-  echo -e "${BLUE}ℹ${NC} $1"
-}
-
-log_success() {
-  echo -e "${GREEN}✓${NC} $1"
-}
-
-log_warning() {
-  echo -e "${YELLOW}⚠${NC} $1"
-}
-
-log_error() {
-  echo -e "${RED}✗${NC} $1"
-}
-
+log_info()    { echo -e "${BLUE}ℹ${NC} $1"; }
+log_success() { echo -e "${GREEN}✓${NC} $1"; }
+log_warning() { echo -e "${YELLOW}⚠${NC} $1"; }
+log_error()   { echo -e "${RED}✗${NC} $1"; }
 log_section() {
   echo ""
   echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-  echo -e "${PURPLE}$1${NC}"
+  echo -e "${PURPLE}  $1${NC}"
   echo -e "${PURPLE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
   echo ""
 }
 
-# ─── 检查环境 ─────────────────────────────────────────────────
+# ─── 环境检查 ────────────────────────────────────────────────
 
-check_environment() {
+check_deps() {
   log_section "环境检查"
 
-  # 检查 Node.js
-  if ! command -v node &> /dev/null; then
-    log_error "未找到 Node.js，请先安装 Node.js 18+ 版本"
-    log_info "访问 https://nodejs.org/ 下载安装"
+  if ! command -v node &>/dev/null; then
+    log_error "未找到 Node.js，请先安装 Node.js 18+"
+    log_info  "下载地址: https://nodejs.org/"
     exit 1
   fi
-
-  local node_version=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-  if [ "$node_version" -lt 18 ]; then
-    log_error "Node.js 版本过低，需要 18+ 版本"
+  local ver
+  ver=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+  if [ "$ver" -lt 18 ]; then
+    log_error "Node.js 版本过低（当前 $(node -v)），需要 18+"
     exit 1
   fi
-
   log_success "Node.js $(node -v)"
 
-  # 检查 npm
-  if ! command -v npm &> /dev/null; then
+  if ! command -v npm &>/dev/null; then
     log_error "未找到 npm"
     exit 1
   fi
-
   log_success "npm $(npm -v)"
 
-  # 检查 Git
-  if ! command -v git &> /dev/null; then
-    log_warning "未找到 Git（可选，建议安装以便获取更新）"
-  else
-    log_success "git $(git --version | awk '{print $3}')"
+  if ! command -v git &>/dev/null; then
+    log_error "未找到 git，安装 Skill 需要 git"
+    exit 1
   fi
+  log_success "git $(git --version | awk '{print $3}')"
 }
 
-# ─── 克隆或更新仓库 ──────────────────────────────────────────
+# ─── 检测 Skills 目录 ─────────────────────────────────────────
+# Hermes 和 OpenClaw 共享同一个 ~/.agents/skills 目录。
+# 如果已通过 install-openclaw.sh 安装过，此脚本会复用该目录。
 
-setup_repository() {
-  log_section "仓库设置"
+detect_skills_dir() {
+  local dir=""
 
-  if [ -d "clover-a-sales" ]; then
-    log_warning "目录 clover-a-sales 已存在"
-    read -p "是否更新现有项目? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      cd clover-a-sales
-      log_info "更新仓库..."
-      git pull origin main 2>/dev/null || log_warning "无法更新，请手动 git pull"
-    fi
-  else
-    log_info "克隆仓库..."
-    if git clone https://github.com/yeaphgel/clover-a-sales.git; then
-      cd clover-a-sales
-      log_success "仓库克隆完成"
-    else
-      log_warning "git clone 失败，创建本地目录..."
-      mkdir -p clover-a-sales
-      cd clover-a-sales
-    fi
+  # 1. hermes CLI
+  if command -v hermes &>/dev/null; then
+    dir=$(hermes skills dir 2>/dev/null || true)
   fi
+
+  # 2. 环境变量
+  dir="${dir:-${HERMES_SKILLS_DIR:-}}"
+
+  # 3. 与 OpenClaw 共享的常见路径
+  if [ -z "$dir" ]; then
+    for candidate in \
+      "$HOME/.agents/skills" \
+      "$HOME/.hermes/skills" \
+      "$HOME/Library/Application Support/Hermes/skills"
+    do
+      if [ -d "$candidate" ]; then
+        dir="$candidate"
+        break
+      fi
+    done
+  fi
+
+  # 4. 交互询问
+  if [ -z "$dir" ]; then
+    dir="$HOME/.agents/skills"
+    echo ""
+    log_warning "无法自动检测 Hermes 的 Skills 目录"
+    read -rp "  请输入 Skills 目录路径（直接回车使用默认 ${dir}）: " input
+    [ -n "$input" ] && dir="$input"
+  fi
+
+  echo "$dir"
 }
 
-# ─── 安装依赖 ─────────────────────────────────────────────────
+# ─── 安装 Skill ───────────────────────────────────────────────
 
-install_dependencies() {
-  log_section "安装依赖"
+install_skill() {
+  local skills_dir="$1"
+  local skill_dir="${skills_dir}/clover-a-sales"
+  local max_retries=3
+  local retry_count=0
 
-  if [ -f "package.json" ]; then
-    log_info "运行 npm install..."
-    npm install --prefer-offline --no-audit 2>&1 | grep -E "added|up to date|found.*vulnerabilities" | tail -n 3
-    log_success "依赖安装完成"
+  log_section "安装 Skill 到 Hermes"
+  log_info "Skills 目录: ${skills_dir}"
+
+  mkdir -p "$skills_dir"
+
+  if [ -d "${skill_dir}/.git" ]; then
+    log_info "Skill 已存在，拉取最新更新..."
+    git -C "$skill_dir" pull origin main
+    log_success "更新完成"
   else
-    log_warning "未找到 package.json，跳过依赖安装"
-  fi
-}
+    log_info "正在克隆仓库: https://github.com/yeaphgel/b2b-highticket.git"
 
-# ─── 配置环境变量 ────────────────────────────────────────────
+    # 重试机制
+    while [ $retry_count -lt $max_retries ]; do
+      log_info "尝试克隆... (${retry_count}/${max_retries})"
 
-setup_environment() {
-  log_section "环境变量配置"
-
-  if [ ! -f ".env" ]; then
-    if [ -f ".env.example" ]; then
-      cp .env.example .env
-      log_success ".env 文件已创建"
-
-      # 自动填入一些默认值
-      if command -v sed &> /dev/null; then
-        # 如果是 macOS，使用不同的 sed 语法
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-          sed -i '' 's/HERMES_PORT=.*/HERMES_PORT=3001/' .env
-          sed -i '' 's/DASHBOARD_PORT=.*/DASHBOARD_PORT=3000/' .env
-          sed -i '' 's/WEBHOOK_PORT=.*/WEBHOOK_PORT=3002/' .env
+      if git clone https://github.com/yeaphgel/b2b-highticket.git "$skill_dir" 2>&1; then
+        log_success "克隆完成"
+        break
+      else
+        retry_count=$((retry_count + 1))
+        if [ $retry_count -lt $max_retries ]; then
+          log_warning "克隆失败，等待后重试... (${retry_count}/${max_retries})"
+          sleep $((retry_count * 2))  # 指数退避: 2s, 4s, 6s
         else
-          sed -i 's/HERMES_PORT=.*/HERMES_PORT=3001/' .env
-          sed -i 's/DASHBOARD_PORT=.*/DASHBOARD_PORT=3000/' .env
-          sed -i 's/WEBHOOK_PORT=.*/WEBHOOK_PORT=3002/' .env
+          log_error "克隆失败，已达最大重试次数"
+          log_info "🔧 手动解决方案："
+          log_info "  1. 确保网络连接正常"
+          log_info "  2. 手动执行："
+          log_info "     cd ${skills_dir}"
+          log_info "     git clone https://github.com/yeaphgel/b2b-highticket.git clover-a-sales"
+          log_info "  3. 或者使用 SSH（如果配置了 SSH 密钥）："
+          log_info "     git clone git@github.com:yeaphgel/b2b-highticket.git clover-a-sales"
+          exit 1
         fi
       fi
+    done
+  fi
 
-      log_warning "请编辑 .env 文件并填写以下必需项:"
-      log_warning "  - ARK_API_KEY（必需）: Ark AI API密钥"
-      log_warning "  - HERMES_SECRET（可选）: Hermes Webhook签名密钥"
+  cd "$skill_dir"
+
+  log_info "安装 Node.js 依赖..."
+  npm install --prefer-offline --no-audit --silent
+  log_success "依赖安装完成"
+}
+
+# ─── 配置环境变量 ─────────────────────────────────────────────
+
+setup_env() {
+  local skill_dir="$1"
+  cd "$skill_dir"
+
+  log_section "配置环境变量"
+
+  if [ ! -f .env ]; then
+    cp .env.example .env
+    log_success ".env 文件已创建"
+  else
+    log_info ".env 文件已存在，跳过创建"
+  fi
+
+  _write_env() {
+    local key="$1" val="$2"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' "s|^${key}=.*|${key}=${val}|" .env
     else
-      log_warning "未找到 .env.example，请手动创建 .env 文件"
+      sed -i "s|^${key}=.*|${key}=${val}|" .env
     fi
-  else
-    log_info ".env 文件已存在"
-  fi
-}
-
-# ─── 初始化数据 ──────────────────────────────────────────────
-
-initialize_data() {
-  log_section "初始化数据结构"
-
-  mkdir -p data/{clients,progress,progress/rankings,knowledge,execution}
-  mkdir -p logs
-  mkdir -p backups
-
-  log_success "数据目录已创建"
-}
-
-# ─── Hermes 集成配置 ──────────────────────────────────────────
-
-setup_hermes_config() {
-  log_section "Hermes 集成配置"
-
-  log_info "创建 Hermes 配置示例..."
-
-  cat > hermes-config.example.json << 'EOF'
-{
-  "hermes": {
-    "apiEndpoint": "https://hermes.example.com/api",
-    "webhookUrl": "http://your-domain:3001/webhook/hermes/call",
-    "secret": "${HERMES_SECRET}",
-    "timeout": 30000,
-    "retryAttempts": 3
-  },
-  "transcription": {
-    "provider": "hermes",
-    "autoProcess": true,
-    "languages": ["zh-CN", "en-US"]
-  },
-  "callTracking": {
-    "enabled": true,
-    "trackingFields": [
-      "callId",
-      "callDuration",
-      "transcript",
-      "clientName",
-      "userId"
-    ]
   }
-}
-EOF
 
-  if [ ! -f "hermes-config.json" ]; then
-    cp hermes-config.example.json hermes-config.json
-    log_success "Hermes 配置已创建: hermes-config.json"
+  # ARK_API_KEY（通话 AI 复盘必需）
+  if [ -n "${ARK_API_KEY:-}" ]; then
+    _write_env ARK_API_KEY "$ARK_API_KEY"
+    log_success "ARK_API_KEY 已自动写入 .env"
   else
-    log_info "hermes-config.json 已存在"
+    echo ""
+    log_warning "ARK_API_KEY 是通话 AI 复盘的必需配置"
+    read -rp "  请输入 ARK_API_KEY（留空则稍后手动编辑 .env）: " key_input
+    if [ -n "$key_input" ]; then
+      _write_env ARK_API_KEY "$key_input"
+      log_success "ARK_API_KEY 已写入 .env"
+    else
+      log_warning "已跳过，请稍后编辑: ${skill_dir}/.env"
+    fi
+  fi
+
+  # HERMES_SECRET / HERMES_API_KEY 仅在服务模式（Webhook）下需要
+  # Skill 模式下 Hermes 直接调用脚本，无 Webhook 请求，无需配置
+  # 如果环境变量中已设置（服务模式场景），自动写入；否则跳过
+  if [ -n "${HERMES_SECRET:-}" ]; then
+    _write_env HERMES_SECRET "$HERMES_SECRET"
+    log_success "HERMES_SECRET 已自动写入 .env（服务模式）"
+  fi
+
+  if [ -n "${HERMES_API_KEY:-}" ]; then
+    _write_env HERMES_API_KEY "$HERMES_API_KEY"
+    log_success "HERMES_API_KEY 已自动写入 .env（服务模式）"
   fi
 }
 
-# ─── 构建向量索引 ────────────────────────────────────────────
+# ─── 构建知识库索引 ───────────────────────────────────────────
 
 build_index() {
-  log_section "构建知识库索引"
+  local skill_dir="$1"
+  cd "$skill_dir"
 
-  if [ -f "scripts/index.js" ]; then
-    if [ -n "$ARK_API_KEY" ]; then
-      log_info "使用 ARK_API_KEY 构建向量索引..."
-      if ARK_API_KEY="$ARK_API_KEY" npm run index 2>&1 | tail -n 5; then
-        log_success "知识库索引构建成功"
-      else
-        log_warning "向量索引构建失败，可稍后运行: npm run index"
-      fi
-    else
-      log_warning "ARK_API_KEY 未配置，跳过向量索引构建"
-      log_info "请先编辑 .env 文件，然后运行: ARK_API_KEY=your_key npm run index"
-    fi
+  log_section "构建知识库向量索引"
+
+  if ! grep -q "^ARK_API_KEY=." .env 2>/dev/null; then
+    log_warning "ARK_API_KEY 未配置，跳过索引构建"
+    log_info  "可稍后进入 Skill 目录手动运行："
+    log_info  "  cd ${skill_dir}/scripts && node index.js"
+    return
+  fi
+
+  log_info "正在构建索引（首次约需 1-3 分钟）..."
+  if (cd scripts && node index.js); then
+    log_success "知识库索引构建完成"
+  else
+    log_warning "索引构建失败，可稍后手动运行: cd ${skill_dir}/scripts && node index.js"
   fi
 }
 
-# ─── 启动服务 ────────────────────────────────────────────────
+# ─── 完成提示 ─────────────────────────────────────────────────
 
-start_services() {
-  log_section "安装完成"
+show_done() {
+  local skill_dir="$1"
 
   echo ""
-  echo -e "${GREEN}🎉 Clover A-sales + Hermes 集成已安装${NC}"
-  echo ""
-
-  echo -e "${BLUE}一键启动所有服务${NC}:"
-  echo "  ${YELLOW}npm run start:all${NC}"
+  echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
+  echo -e "${GREEN}║  ✅  Clover A-sales Skill 安装完成！           ║${NC}"
+  echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
   echo ""
 
-  echo -e "${BLUE}单独启动各服务${NC}:"
-  echo "  • Dashboard API (端口3000)"
-  echo "    ${YELLOW}npm run dashboard${NC}"
-  echo ""
-  echo "  • Hermes 集成 (端口3001)"
-  echo "    ${YELLOW}npm run hermes${NC}"
-  echo ""
-  echo "  • 定时调度器"
-  echo "    ${YELLOW}npm run scheduler${NC}"
-  echo ""
-  echo "  • Webhook 处理 (端口3002)"
-  echo "    ${YELLOW}npm run webhook${NC}"
+  echo -e "${BLUE}Skill 位置${NC}:  ${skill_dir}"
   echo ""
 
-  echo -e "${BLUE}Hermes 配置步骤${NC}:"
-  echo "  1. 编辑 .env 文件，填写:"
-  echo "     ${YELLOW}ARK_API_KEY=your_api_key${NC}"
-  echo "     ${YELLOW}HERMES_SECRET=your_secret_key${NC}"
-  echo ""
-  echo "  2. 编辑 hermes-config.json，设置:"
-  echo "     ${YELLOW}hermes.apiEndpoint${NC}: Hermes 服务地址"
-  echo "     ${YELLOW}hermes.webhookUrl${NC}: 你的公网地址"
-  echo ""
-  echo "  3. 在 Hermes 中配置回调:"
-  echo "     POST http://your-domain:3001/webhook/hermes/call"
-  echo ""
-  echo "     Body 示例:"
-  echo "     {\"callId\": \"call_123\",\"transcript\": \"...\",\"userId\": \"user_123\"}"
+  echo -e "${BLUE}通话自动复盘（Hermes 核心功能）${NC}:"
+  echo "  通话结束后，Hermes 自动触发 Clover AI 复盘："
+  echo "  • 十维度能力评分（破冰、识别需求、传达价值...）"
+  echo "  • 与销冠对标分析，找出差距维度"
+  echo "  • GROW 教练建议（本周聚焦改进点）"
+  echo "  • 客户档案自动更新"
   echo ""
 
-  echo -e "${BLUE}验证安装${NC}:"
-  echo "  启动服务后，访问:"
-  echo "  ${YELLOW}http://localhost:3000${NC}  - 仪表板"
-  echo "  ${YELLOW}http://localhost:3001/health${NC}  - Hermes API 健康检查"
+  echo -e "${BLUE}在 Hermes 对话中使用${NC}:"
+  echo "  /sales        → 进入销售教练模式"
+  echo "  /早报          → 今日销售早报"
+  echo "  /客户列表      → 查看客户档案"
+  echo "  /重建索引      → 更新知识库"
   echo ""
 
-  echo -e "${BLUE}CLI 工具${NC}:"
-  echo "  查看用户仪表板:"
-  echo "    ${YELLOW}node scripts/coach-cli.js dashboard <userId>${NC}"
-  echo ""
-  echo "  查看通话分析:"
-  echo "    ${YELLOW}node scripts/coach-cli.js search \"keyword\"${NC}"
+  echo -e "${BLUE}自然语言触发示例${NC}:"
+  echo '  "刚才那通电话复盘一下"    → 最近通话 AI 分析'
+  echo '  "我的十维度评分怎么样？"  → 维度评分 + 对标报告'
+  echo '  "A 客户现在进展到哪了？"  → 调取客户档案'
   echo ""
 
-  echo -e "${BLUE}文档和支持${NC}:"
-  echo "  GitHub: https://github.com/yeaphgel/clover-a-sales"
-  echo "  邮件: yeaphgel@gmail.com"
-  echo "  X: @yeaphgel"
+  echo -e "${BLUE}配置说明${NC}:"
+  echo "  Skill 模式无需额外 API key 即可使用基础功能"
+  echo "  如需知识库语义搜索，可配置 ARK_API_KEY："
+  echo "    vim ${skill_dir}/.env"
+  echo "    → 填写 ARK_API_KEY=你的密钥（可从火山引擎获取）"
+  echo "    → 然后运行: cd ${skill_dir}/scripts && node index.js"
   echo ""
 
-  echo -e "${GREEN}✨ 安装完成！现在可以启动服务了${NC}"
+  echo -e "${BLUE}文档${NC}: https://github.com/yeaphgel/b2b-highticket"
   echo ""
 }
 
@@ -301,23 +286,21 @@ start_services() {
 main() {
   echo ""
   echo -e "${BLUE}╔════════════════════════════════════════════════╗${NC}"
-  echo -e "${BLUE}║ 🎮 Clover A-sales + Hermes 集成 - 安装程序  ║${NC}"
-  echo -e "${BLUE}║    AI 驱动的语音销售教练系统                   ║${NC}"
+  echo -e "${BLUE}║  🎧 Clover A-sales × Hermes Skill 安装程序    ║${NC}"
   echo -e "${BLUE}╚════════════════════════════════════════════════╝${NC}"
   echo ""
 
-  check_environment
-  setup_repository
-  install_dependencies
-  setup_environment
-  initialize_data
-  setup_hermes_config
-  build_index
-  start_services
+  check_deps
+
+  SKILLS_DIR=$(detect_skills_dir)
+  SKILL_DIR="${SKILLS_DIR}/clover-a-sales"
+
+  install_skill  "$SKILLS_DIR"
+  setup_env      "$SKILL_DIR"
+  build_index    "$SKILL_DIR"
+  show_done      "$SKILL_DIR"
 }
 
-# 错误处理
-trap 'log_error "安装过程中出错"; exit 1' ERR
+trap 'echo ""; log_error "安装中断"; exit 1' ERR INT
 
-# 运行主程序
 main
