@@ -466,19 +466,82 @@ POST /webhook/email                邮件发送追踪
 GET  /health                       健康检查
 ```
 
+## 🔑 API Key 配置
+
+### 🎯 Jina AI Key（推荐 - 完全免费）
+
+Clover A-sales 默认使用 **Jina AI** 进行知识库语义搜索，完全免费，无需付费。
+
+#### 快速注册（5 分钟）
+
+1. **打开 Jina AI 官网**
+   ```
+   https://jina.ai
+   ```
+
+2. **注册账号**
+   - 点击右上角 "Sign Up" 或 "登录"
+   - 用邮箱或 Google/GitHub 账号快速注册
+   - 验证邮箱
+
+3. **获取 API Key**
+   - 登录后进入 Dashboard
+   - 点击左侧 "API Keys" 或 "Settings"
+   - 点击 "Create API Key" 按钮
+   - 复制生成的 key（通常以 `jina_` 开头）
+
+4. **配置到项目**
+   ```bash
+   # 方式 1：环境变量（推荐）
+   export JINA_API_KEY="your_jina_api_key_here"
+   
+   # 方式 2：编辑 .env 文件
+   echo "JINA_API_KEY=your_jina_api_key_here" >> .env
+   ```
+
+#### 免费额度说明
+- **每月 1M tokens** 免费额度（足以处理超过 100 万字的知识库）
+- 支持中英文、日文等多语言嵌入
+- 响应速度快（API 延迟 <500ms）
+- 无需信用卡，邮箱即可注册
+
+---
+
+### 📌 可选：Doubao (ARK) 配置
+
+如果希望使用国内的豆包模型（付费），可改为：
+
+```bash
+# .env 文件配置
+EMBEDDING_PROVIDER=doubao
+ARK_API_KEY=your_ark_api_key_here
+DOUBAO_EMBEDDING_MODEL=doubao-embedding-large
+```
+
+> **注意**：ARK 是付费服务，建议仅在 Jina 出现问题时作为备选
+
+---
+
 ## ⚙️ 环境配置
 
 复制 `.env.example` 为 `.env` 并填入以下信息:
 
 ```bash
-# 必需
-ARK_API_KEY=your_api_key_here
+# ─── 知识库向量化（必需） ─────────────────────────────
+# 推荐使用 Jina AI（免费），注册流程见上文 🔑 API Key 配置
+EMBEDDING_PROVIDER=jina                    # jina 或 doubao
+JINA_API_KEY=your_jina_api_key_here       # 从 https://jina.ai 获取
+
+# ─── 可选：改用 Doubao（国内付费）──────────────────────
+# EMBEDDING_PROVIDER=doubao
+# ARK_API_KEY=your_ark_api_key_here
+# DOUBAO_EMBEDDING_MODEL=doubao-embedding-large
 
 # 可选（用于推送通知）
 DINGTALK_WEBHOOK=https://oapi.dingtalk.com/robot/send?access_token=xxx
 FEISHU_WEBHOOK=https://open.feishu.cn/open-apis/bot/v2/hook/xxx
 
-# 可选（用于 CRM 集成）
+# 可选（用于 CRM 集成 - 服务模式）
 OPENCLAW_SECRET=your_secret
 HERMES_SECRET=your_secret
 ```
