@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { getUserBadges, checkAndAward } = require('./badges');
 
 const PROGRESS_DIR = path.join(__dirname, '..', 'data', 'progress');
 const RANKINGS_DIR = path.join(PROGRESS_DIR, 'rankings');
@@ -76,12 +77,104 @@ if (!command) {
 ${colorize('🎮 Clover A-sales 销冠教练系统 CLI', 'bright')}
 
 用法:
-  ${colorize('node coach-cli.js dashboard <userId>', 'green')}         查看用户仪表盘
+  ${colorize('node coach-cli.js dashboard <userId>', 'green')}         查看用户仪表盘（终端彩色版）
+  ${colorize('node coach-cli.js dashboard-md <userId>', 'green')}      查看仪表盘（聊天 Markdown 版）
   ${colorize('node coach-cli.js coach <userId>', 'green')}            查看GROW教练建议
   ${colorize('node coach-cli.js leaderboard [weekly|monthly]', 'green')}  查看排行榜
   ${colorize('node coach-cli.js update-progress <userId> <key> <score>', 'green')}  更新维度分数
   ${colorize('node coach-cli.js list-users', 'green')}               列出所有用户
   `);
+  process.exit(0);
+}
+
+// ─── dashboard-md 命令（聊天窗口 Markdown 输出）──────────────────
+
+if (command === 'dashboard-md') {
+  if (!userId) {
+    console.error('❌ 缺少 userId 参数');
+    process.exit(1);
+  }
+
+  const progress = getUserProgress(userId);
+  if (!progress) {
+    console.log(`❌ 未找到用户 **${userId}** 的进度数据。\n\n首次使用需要先完成一次通话复盘，系统会自动创建你的档案。`);
+    process.exit(0);
+  }
+
+  // 检查并颁发新徽章
+  const newBadges = checkAndAward(progress);
+  if (newBadges.length > 0) {
+    fs.writeFileSync(path.join(PROGRESS_DIR, `${userId}.json`), JSON.stringify(progress, null, 2));
+  }
+
+  const scores = progress.dimensionScores || {};
+  const vals = Object.values(scores);
+  const avgScore = vals.length > 0 ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+  const levelInfo = getFormattedLevel(avgScore);
+
+  const NEXT_LEVEL_SCORES = [0, 40, 60, 75, 90, 100];
+  const nextThreshold = NEXT_LEVEL_SCORES[levelInfo.level] || 100;
+  const prevThreshold = NEXT_LEVEL_SCORES[levelInfo.level - 1] || 0;
+  const progress_pct = Math.round(((avgScore - prevThreshold) / (nextThreshold - prevThreshold)) * 100);
+  const progressBar = '█'.repeat(Math.round(progress_pct / 10)) + '░'.repeat(10 - Math.round(progress_pct / 10));
+
+  const DIMENSIONS = [
+    { key: 'ice_breaking',           name: '破冰' },
+    { key: 'identify_needs',         name: '识别需求' },
+    { key: 'deliver_value',          name: '传达价值' },
+    { key: 'build_trust',            name: '建立信任' },
+    { key: 'trust_shaping',          name: '信任塑造' },
+    { key: 'custom_solutions',       name: '定制解决' },
+    { key: 'objection_handling',     name: '异议处理' },
+    { key: 'close_deal',             name: '促成交易' },
+    { key: 'relationship_maintenance', name: '关系维护' },
+    { key: 'hooks',                  name: '钩子' },
+  ];
+
+  const weakest = DIMENSIONS
+    .map(d => ({ ...d, score: scores[d.key] || 0 }))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 2);
+
+  const badgeList = getUserBadges(progress);
+  const badgesStr = badgeList.length > 0
+    ? badgeList.map(b => `${b.icon} ${b.name}`).join(' · ')
+    : '暂无徽章，继续加油！';
+
+  const newBadgesStr = newBadges.length > 0
+    ? `\n\n🎉 **本次新解锁徽章**：${newBadges.map(b => `${b.icon} ${b.name}`).join(' · ')}` : '';
+
+  const lines = [
+    `## 🏆 销售进度仪表盘 — ${userId}`,
+    ``,
+    `**等级**：${levelInfo.emoji} **${levelInfo.name}**（L${levelInfo.level}）`,
+    `**升级进度**：${progressBar} ${progress_pct}%（当前 ${avgScore.toFixed(1)} 分 → 下一级需 ${nextThreshold} 分）`,
+    `**积分**：${progress.points || 0} | **通话数**：${progress.callCount || 0} | **徽章**：${badgeList.length} 枚`,
+    ``,
+    `### 📊 十维度评分`,
+    ``,
+  ];
+
+  DIMENSIONS.forEach(d => {
+    const s = scores[d.key] || 0;
+    const bar = '█'.repeat(Math.round(s)) + '░'.repeat(10 - Math.round(s));
+    const tag = weakest.some(w => w.key === d.key) ? ' ← 待提升' : '';
+    lines.push(`**${d.name.padEnd(6)}** \`${bar}\` ${s.toFixed(1)}/10${tag}`);
+  });
+
+  lines.push(``);
+  lines.push(`### 🏅 已获徽章`);
+  lines.push(``);
+  lines.push(badgesStr);
+  lines.push(``);
+  lines.push(`### 🎯 本周建议`);
+  lines.push(``);
+  lines.push(`重点提升：**${weakest.map(w => w.name).join('** 和 **')}**`);
+  lines.push(`目标：本周通话中刻意练习这两个维度，争取各提升 1-2 分。`);
+
+  if (newBadgesStr) lines.push(newBadgesStr);
+
+  console.log(lines.join('\n'));
   process.exit(0);
 }
 
@@ -99,8 +192,16 @@ if (command === 'dashboard') {
     process.exit(1);
   }
 
+  // 检查并颁发新徽章
+  const newBadges = checkAndAward(progress);
+  if (newBadges.length > 0) {
+    fs.writeFileSync(path.join(PROGRESS_DIR, `${userId}.json`), JSON.stringify(progress, null, 2));
+    newBadges.forEach(b => console.log(colorize(`🎉 新徽章解锁：${b.icon} ${b.name} — ${b.desc}`, 'yellow')));
+  }
+
   const avgScore = Object.values(progress.dimensionScores || {}).reduce((a, b) => a + b, 0) / 10;
   const levelInfo = getFormattedLevel(avgScore);
+  const badgeList = getUserBadges(progress);
 
   printBox('📊 仪表盘', [
     `用户ID: ${userId}`,
@@ -108,7 +209,7 @@ if (command === 'dashboard') {
     `总分: ${avgScore.toFixed(1)}/10`,
     `积分: ${progress.points}`,
     `通话数: ${progress.callCount}`,
-    `徽章数: ${progress.badges?.length || 0}`
+    `徽章数: ${badgeList.length}（${badgeList.map(b => b.icon).join('')}）`
   ]);
 
   console.log(colorize('\n📊 十维度评分:\n', 'blue'));
@@ -157,59 +258,33 @@ if (command === 'coach') {
     .sort((a, b) => a[1] - b[1])
     .slice(0, 3);
 
+  const DIM_NAMES = {
+    ice_breaking: '破冰', identify_needs: '识别需求', deliver_value: '传达价值',
+    build_trust: '建立信任', trust_shaping: '信任塑造', custom_solutions: '定制解决',
+    objection_handling: '异议处理', close_deal: '促成交易',
+    relationship_maintenance: '关系维护', hooks: '钩子'
+  };
+
   printBox('🎯 GROW教练建议', `${levelInfo.emoji} ${levelInfo.name} 水平`);
 
   console.log(colorize('\n📌 目标 (Goal)\n', 'bright'));
-  console.log(`  提升${sorted.map(([k]) => ({
-    ice_breaking: '破冰',
-    identify_needs: '识别需求',
-    deliver_value: '传达价值',
-    build_trust: '建立信任',
-    trust_shaping: '信任塑造',
-    custom_solutions: '定制解决',
-    objection_handling: '异议处理',
-    close_deal: '促成交易',
-    relationship_maintenance: '关系维护',
-    hooks: '钩子'
-  }[k]).join('、')}能力，特别关注${sorted[0][0]}`);
+  console.log(`  提升${sorted.map(([k]) => DIM_NAMES[k]).join('、')}能力，特别关注${DIM_NAMES[sorted[0][0]]}`);
   console.log(`  预期改进: 本周维度平均分提升 2-3 分`);
 
   console.log(colorize('\n🔍 现状 (Reality)\n', 'bright'));
   console.log(`  整体分数: ${avgScore.toFixed(1)}/10`);
-  console.log(`  最需改进: ${sorted.map(([k, v]) => `${({
-    ice_breaking: '破冰',
-    identify_needs: '识别需求',
-    deliver_value: '传达价值',
-    build_trust: '建立信任',
-    trust_shaping: '信任塑造',
-    custom_solutions: '定制解决',
-    objection_handling: '异议处理',
-    close_deal: '促成交易',
-    relationship_maintenance: '关系维护',
-    hooks: '钩子'
-  }[k])} (${v.toFixed(1)}分)`).join('、')}`);
+  console.log(`  最需改进: ${sorted.map(([k, v]) => `${DIM_NAMES[k]} (${v.toFixed(1)}分)`).join('、')}`);
 
   console.log(colorize('\n💡 选项 (Options)\n', 'bright'));
   sorted.forEach((item, idx) => {
-    const dimName = {
-      ice_breaking: '破冰',
-      identify_needs: '识别需求',
-      deliver_value: '传达价值',
-      build_trust: '建立信任',
-      trust_shaping: '信任塑造',
-      custom_solutions: '定制解决',
-      objection_handling: '异议处理',
-      close_deal: '促成交易',
-      relationship_maintenance: '关系维护',
-      hooks: '钩子'
-    }[item[0]];
+    const dimName = DIM_NAMES[item[0]];
     console.log(`  ${idx + 1}. 专项训练: ${dimName}`);
     console.log(`     当前分数: ${item[1].toFixed(1)} → 目标: ${Math.min(item[1] + 3, 10).toFixed(1)}`);
   });
 
   console.log(colorize('\n✅ 行动 (Way Forward)\n', 'bright'));
   console.log(`  本周行动:`);
-  console.log(`    • 周一-周三: 专项练习${sorted[0][0]}`);
+  console.log(`    • 周一-周三: 专项练习${DIM_NAMES[sorted[0][0]]}`);
   console.log(`    • 周四: 与团队成员进行同行评审`);
   console.log(`    • 周五: 总结本周改进点，制定下周计划`);
   console.log(`  下次复盘: 下周一`);
