@@ -11,14 +11,11 @@
 
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
+const { getEmbedding } = require('./embedding');
 
 const INDEX_FILE = path.join(__dirname, '../data/index.json');
 const TOP_K = 5;             // 返回最相关的 K 个文本块
 const MIN_SIMILARITY = 0.4;  // 最低相似度阈值（低于此值不返回）
-
-const API_KEY = process.env.ARK_API_KEY;
-const EMBEDDING_MODEL = process.env.DOUBAO_EMBEDDING_MODEL || 'doubao-embedding-large';
 
 // ─── 向量计算 ─────────────────────────────────────────────────────────────
 
@@ -31,47 +28,6 @@ function cosineSimilarity(a, b) {
   }
   if (magA === 0 || magB === 0) return 0;
   return dot / (Math.sqrt(magA) * Math.sqrt(magB));
-}
-
-// ─── Embedding API ────────────────────────────────────────────────────────
-
-async function getEmbedding(text) {
-  if (!API_KEY) {
-    throw new Error('未找到 ARK_API_KEY 环境变量');
-  }
-
-  const body = JSON.stringify({ model: EMBEDDING_MODEL, input: [text] });
-
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'ark.cn-beijing.volces.com',
-      path: '/api/v3/embeddings',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Length': Buffer.byteLength(body),
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      let raw = '';
-      res.on('data', chunk => raw += chunk);
-      res.on('end', () => {
-        try {
-          const result = JSON.parse(raw);
-          if (result.error) throw new Error(result.error.message);
-          resolve(result.data[0].embedding);
-        } catch (e) {
-          reject(new Error(`Embedding API 错误: ${raw}`));
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
 }
 
 // ─── 书名格式化 ───────────────────────────────────────────────────────────

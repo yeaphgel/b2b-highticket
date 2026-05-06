@@ -19,7 +19,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const https = require('https');
 const { execSync } = require('child_process');
 const { cleanFile } = require('./clean');
 
@@ -30,52 +29,12 @@ const CHUNK_OVERLAP = 60;
 const BATCH_SIZE = 10;
 const BATCH_DELAY_MS = 500;
 
-const API_KEY = process.env.ARK_API_KEY;
-const EMBEDDING_MODEL = process.env.DOUBAO_EMBEDDING_MODEL || 'doubao-embedding-large';
+const { getEmbeddings, PROVIDER } = require('./embedding');
 
 // ─── 工具函数 ─────────────────────────────────────────────────────────────
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function getEmbeddings(texts) {
-  if (!API_KEY) {
-    throw new Error('未找到 ARK_API_KEY 环境变量，请确认 OpenClaw 中已配置豆包 API Key');
-  }
-
-  const body = JSON.stringify({ model: EMBEDDING_MODEL, input: texts });
-
-  return new Promise((resolve, reject) => {
-    const options = {
-      hostname: 'ark.cn-beijing.volces.com',
-      path: '/api/v3/embeddings',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Length': Buffer.byteLength(body),
-      },
-    };
-
-    const req = https.request(options, (res) => {
-      let raw = '';
-      res.on('data', chunk => raw += chunk);
-      res.on('end', () => {
-        try {
-          const result = JSON.parse(raw);
-          if (result.error) throw new Error(result.error.message);
-          resolve(result.data.map(item => item.embedding));
-        } catch (e) {
-          reject(new Error(`Embedding API 返回错误: ${raw}`));
-        }
-      });
-    });
-
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
 }
 
 // ─── PDF 解析 ─────────────────────────────────────────────────────────────
@@ -258,7 +217,7 @@ async function main() {
   }
 
   // ── 向量化 ──
-  console.log(`\n📊 共 ${allChunks.length} 个文本块，开始向量化（模型：${EMBEDDING_MODEL}）...`);
+  console.log(`\n📊 共 ${allChunks.length} 个文本块，开始向量化（provider：${PROVIDER}）...`);
 
   const indexedChunks = [];
   for (let i = 0; i < allChunks.length; i += BATCH_SIZE) {
@@ -280,7 +239,7 @@ async function main() {
   fs.mkdirSync(path.dirname(INDEX_FILE), { recursive: true });
   fs.writeFileSync(INDEX_FILE, JSON.stringify({
     createdAt: new Date().toISOString(),
-    model: EMBEDDING_MODEL,
+    provider: PROVIDER,
     totalChunks: indexedChunks.length,
     chunks: indexedChunks,
   }, null, 2));

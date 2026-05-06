@@ -170,37 +170,35 @@ setup_env() {
     log_info ".env 文件已存在，跳过创建"
   fi
 
-  # 从当前 shell 环境自动写入 ARK_API_KEY
-  if [ -n "${ARK_API_KEY:-}" ]; then
+  _write_env() {
+    local key="$1" val="$2"
     if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' "s|^ARK_API_KEY=.*|ARK_API_KEY=${ARK_API_KEY}|" .env
+      sed -i '' "s|^${key}=.*|${key}=${val}|" .env
     else
-      sed -i "s|^ARK_API_KEY=.*|ARK_API_KEY=${ARK_API_KEY}|" .env
+      sed -i "s|^${key}=.*|${key}=${val}|" .env
     fi
-    log_success "ARK_API_KEY 已自动写入 .env"
+  }
+
+  # JINA_API_KEY（知识库语义搜索，免费）
+  if [ -n "${JINA_API_KEY:-}" ]; then
+    _write_env JINA_API_KEY "$JINA_API_KEY"
+    log_success "JINA_API_KEY 已自动写入 .env"
   else
     echo ""
-    log_warning "需要填写 ARK_API_KEY（豆包/火山引擎 API 密钥）才能使用知识库搜索"
-    read -rp "  请输入 ARK_API_KEY（留空则稍后手动编辑 .env）: " key_input
+    log_info "JINA_API_KEY 用于知识库语义搜索（免费，每月 1M tokens）"
+    log_info "免费申请：https://jina.ai（邮箱注册即可）"
+    read -rp "  请输入 JINA_API_KEY（留空则跳过，稍后手动编辑 .env）: " key_input
     if [ -n "$key_input" ]; then
-      if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s|^ARK_API_KEY=.*|ARK_API_KEY=${key_input}|" .env
-      else
-        sed -i "s|^ARK_API_KEY=.*|ARK_API_KEY=${key_input}|" .env
-      fi
-      log_success "ARK_API_KEY 已写入 .env"
+      _write_env JINA_API_KEY "$key_input"
+      log_success "JINA_API_KEY 已写入 .env"
     else
-      log_warning "已跳过，请稍后编辑: ${skill_dir}/.env"
+      log_warning "已跳过，如需语义搜索请稍后编辑: ${skill_dir}/.env"
     fi
   fi
 
   # 可选：OpenClaw Secret
   if [ -n "${OPENCLAW_SECRET:-}" ]; then
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' "s|^OPENCLAW_SECRET=.*|OPENCLAW_SECRET=${OPENCLAW_SECRET}|" .env
-    else
-      sed -i "s|^OPENCLAW_SECRET=.*|OPENCLAW_SECRET=${OPENCLAW_SECRET}|" .env
-    fi
+    _write_env OPENCLAW_SECRET "$OPENCLAW_SECRET"
     log_success "OPENCLAW_SECRET 已自动写入 .env"
   fi
 }
@@ -213,8 +211,8 @@ build_index() {
 
   log_section "构建知识库向量索引"
 
-  if ! grep -q "^ARK_API_KEY=." .env 2>/dev/null; then
-    log_warning "ARK_API_KEY 未配置，跳过索引构建"
+  if ! grep -q "^JINA_API_KEY=." .env 2>/dev/null && ! grep -q "^ARK_API_KEY=." .env 2>/dev/null; then
+    log_warning "JINA_API_KEY 未配置，跳过索引构建"
     log_info  "可稍后进入 Skill 目录手动运行："
     log_info  "  cd ${skill_dir}/scripts && node index.js"
     return
@@ -225,6 +223,34 @@ build_index() {
     log_success "知识库索引构建完成"
   else
     log_warning "索引构建失败，可稍后手动运行: cd ${skill_dir}/scripts && node index.js"
+  fi
+}
+
+# ─── 安装子 Agent ─────────────────────────────────────────────
+
+install_agents() {
+  local skill_dir="$1"
+  local skills_dir="$2"
+  local agents_dir="${skills_dir}/../agents"
+
+  log_section "安装子 Agent"
+
+  if [ ! -d "${skill_dir}/agents" ]; then
+    log_warning "agents/ 目录不存在，跳过子 Agent 安装"
+    return
+  fi
+
+  mkdir -p "$agents_dir"
+  local count=0
+  for agent_file in "${skill_dir}/agents/"*.md; do
+    [ -f "$agent_file" ] || continue
+    cp "$agent_file" "$agents_dir/"
+    log_success "已安装子 Agent: $(basename "$agent_file")"
+    count=$((count + 1))
+  done
+
+  if [ "$count" -gt 0 ]; then
+    log_success "共安装 ${count} 个子 Agent 到 ${agents_dir}"
   fi
 }
 
@@ -242,23 +268,42 @@ show_done() {
   echo -e "${BLUE}Skill 位置${NC}:  ${skill_dir}"
   echo ""
 
-  echo -e "${BLUE}在 OpenClaw 中直接使用${NC}:"
+  echo -e "${BLUE}在 OpenClaw 中激活${NC}:"
+  echo "  输入 /sales 或 /销售 → 进入销售教练模式"
+  echo ""
+
+  echo -e "${BLUE}快捷指令${NC}:"
   echo "  /sales        → 进入销售教练模式"
+  echo "  /仪表盘        → 查看游戏化进度（等级/积分/徽章）"
   echo "  /新手          → 新手入门 ToB 销售指南"
   echo "  /早报          → 今日销售早报（7 条洞察）"
   echo "  /日报          → 引导填写销售日报"
+  echo "  /竞品          → 竞品分析"
+  echo "  /交易策略      → 制定推进策略"
+  echo "  /利益方        → 利益相关者分析"
   echo "  /客户列表      → 查看所有客户档案"
   echo "  /重建索引      → 更新知识库索引"
+  echo ""
+
+  echo -e "${BLUE}子 Agent${NC}:"
+  echo "  clover-sales-coach    → 通话复盘、十维度评分、GROW 教练"
+  echo "  clover-sales-engineer → 战略规划、竞品分析、交易推进"
+  echo "  clover-top-seller     → 顶尖话术、成交技巧、客户心理"
   echo ""
 
   echo -e "${BLUE}自然语言触发示例${NC}:"
   echo '  "客户说价格太贵怎么办？"  → 话术指导'
   echo '  "帮我分析 A 客户的进展"   → 客户档案 + 阶段建议'
+  echo '  "这单怎么推进？"          → 战略规划'
   echo '  "今天早报"                → 每日洞察推送'
   echo ""
 
-  echo -e "${BLUE}若需修改配置${NC}:"
-  echo "  vim ${skill_dir}/.env"
+  echo -e "${BLUE}配置说明${NC}:"
+  echo "  基础功能无需任何 API key 即可使用"
+  echo "  如需知识库语义搜索（推荐），配置免费的 JINA_API_KEY："
+  echo "    vim ${skill_dir}/.env"
+  echo "    → 填写 JINA_API_KEY=你的密钥（免费申请：https://jina.ai）"
+  echo "    → 然后运行: cd ${skill_dir}/scripts && node index.js"
   echo ""
 
   echo -e "${BLUE}文档${NC}: https://github.com/yeaphgel/b2b-highticket"
@@ -279,10 +324,11 @@ main() {
   SKILLS_DIR=$(detect_skills_dir)
   SKILL_DIR="${SKILLS_DIR}/clover-a-sales"
 
-  install_skill  "$SKILLS_DIR"
-  setup_env      "$SKILL_DIR"
-  build_index    "$SKILL_DIR"
-  show_done      "$SKILL_DIR"
+  install_skill   "$SKILLS_DIR"
+  setup_env       "$SKILL_DIR"
+  build_index     "$SKILL_DIR"
+  install_agents  "$SKILL_DIR" "$SKILLS_DIR"
+  show_done       "$SKILL_DIR"
 }
 
 trap 'echo ""; log_error "安装中断"; exit 1' ERR INT
